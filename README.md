@@ -18,6 +18,7 @@ We consider 2D LFP recordings from Neuropixels probes and make certain assumptio
 The demos above use the fixed, true Gaussian process hyperparameters to demonstrate the method. In practice, the Gaussian process marginal likelihood (found in `gp_lik.py`) can be optimized with respect to the hyperparameters using standard optimization libraries.
 
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4698746.svg)](https://doi.org/10.5281/zenodo.4698746)
 
 
 
