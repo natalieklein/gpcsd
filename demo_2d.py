@@ -7,7 +7,7 @@ import numpy as np
 
 from utility_functions import plot_im, expand_grid
 from forward_models import fwd_model_2d
-from gp_meancov import compKs_2d, compKt
+from gp_cov import compKs_2d, compKt
 from predict_csd import predictcsd_trad_2d, predictcsd_2d
 
 
