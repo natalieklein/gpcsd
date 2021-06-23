@@ -48,6 +48,7 @@ gpcsd_SE, gpcsd_M = predictcsd_1d(R, ellSE, sig2tM, elltM, sig2tSE, elltSE, sig2
 gpcsd_pred = gpcsd_SE + gpcsd_M
 
 # Plot CSD and LFP
+f = plt.figure(figsize=(15, 5))
 plt.subplot(141)
 plot_im(csd, t, z)
 plt.xlabel('Time (ms)')
@@ -68,4 +69,5 @@ plot_im(lfp, t, x)
 plt.xlabel('Time (ms)')
 plt.ylabel('Depth (microns)')
 plt.title('LFP')
+plt.tight_layout()
 plt.show()
