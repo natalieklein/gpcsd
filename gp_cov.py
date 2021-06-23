@@ -67,7 +67,8 @@ def compKphig_1d(x, z, R, ellSE, a, b, ngl=50):
         B = b_fwd_1d(xudiff,R) # (nx, nu)
         res = np.transpose((np.expand_dims(A.T,2)*np.expand_dims(B.T,1)),[1,2,0]) # (nu, nz, nx) -> (nz, nx, nu)
         return res
-    res = quadpy.line_segment.integrate(lambda z: fun_quad(z, x), [a, b], quadpy.line_segment.GaussLegendre(ngl))
+    scheme = quadpy.c1.gauss_legendre(ngl)
+    res = scheme.integrate(lambda z: fun_quad(z, x), [a, b])
     return res # (nz, nx)
 
 
@@ -120,8 +121,8 @@ def compKphi_1d(x, xp, R, ellSE, a, b, ngl=50):
         res = A*np.transpose((np.expand_dims(B.T,2)*np.expand_dims(C.T,1)),[1,2,0]) # this works for quadrilateral: (nu, nx, nxp)
         return res
 
-    res = quadpy.quadrilateral.integrate(lambda z: fun_quad(z[0], z[1], x, xp), [[[a, a], [b, a]], [[a, b], [b, b]]],
-                                         quadpy.quadrilateral.Product(quadpy.line_segment.GaussLegendre(ngl)))
+    scheme = quadpy.c2.product(quadpy.c1.gauss_legendre(ngl))
+    res = scheme.integrate(lambda z: fun_quad(z[0], z[1], x, xp), [[[a, a], [b, a]], [[a, b], [b, b]]])
     return res # (nx, nxp)
 
 
