@@ -31,8 +31,8 @@ z2 = np.linspace(0, 1500, nz2)[:,None]
 z = expand_grid(z1, z2)
 nz = z.shape[0]
 # Grid for LFP coarser resolution
-nx1 = 4
-nx2 = 50
+nx1 = 6
+nx2 = 60
 x1 = np.linspace(0, 60, nx1)[:,None]
 x2 = np.linspace(0, 1500, nx2)[:,None]
 x = expand_grid(x1, x2)
@@ -63,6 +63,7 @@ csd = csd.reshape((nz1, nz2, nt))
 # Plot CSD and LFP over time
 nt_plot = 6
 counter = 1
+f = plt.figure(figsize=(15, 12))
 for ti in range(nt_plot):
     plt.subplot(4, nt_plot, counter)
     plot_im(csd[:, :, ti].T, z1, z2)
@@ -91,4 +92,5 @@ for ti in range(nt_plot):
     plt.ylabel('Depth (microns)')
     plt.title('LFP t=%0.2f'%t[ti])
     counter += 1
+plt.tight_layout()
 plt.show()
