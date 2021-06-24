@@ -7,6 +7,44 @@ import scipy
 import matplotlib.pyplot as plt
 
 
+def inv_gamma_lim(l, u):
+    """
+    Gives inverse Gamma (a,b) based on desired limits l, u
+    """
+    a = 2 + 9 * np.square((l + u)/(u - l))
+    b = 0.5 * (a - 1) * (l + u)
+    return a, b
+
+
+def inv_gamma_lpdf(x, a, b):
+    """
+    Evaluates inverse Gamma(a,b) log density at x (dropping normalization constants)
+    :param x: eval at
+    :param a: shape param
+    :param b: scale param
+    :return:
+    """
+    if x <= 0:
+        val = -np.inf
+    else:
+        val = -(a + 1) * np.log(x) - b/x
+    return val
+
+
+def half_normal_lpdf(x, sigma):
+    """
+    Evaluates half-normal log density at x (dropping normalization constants).
+    :param x: eval at
+    :param sigma: standard deviation
+    :return:
+    """
+    if x <= 0:
+        val = -np.inf
+    else:
+        val = -0.5 * np.square(x / sigma)
+    return val
+
+
 def plot_im(arr, v1, v2):
     p = plt.imshow(arr, vmin=-np.nanmax(np.abs(arr)), vmax=np.nanmax(np.abs(arr)), cmap='bwr', aspect='auto',
                    extent=[np.min(v1), np.max(v1), np.max(v2), np.min(v2)])
