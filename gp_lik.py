@@ -1,8 +1,10 @@
 import numpy as np
 
 from utility_functions import comp_eig_D
-from gp_meancov import compKphi_1d, compKphi_2d, compKt, compute_lfp_mean_quad_vec
+from gp_cov import compKphi_1d, compKphi_2d, compKt #, compute_lfp_mean_quad_vec
 
+# For numerical stability in squared exponential covariance
+JITTER = 1e-10
 
 def marg_lik_cov_1d(R, ellSE, sig2tM, elltM, sig2tSE, elltSE, sig2n, x, t, yvec, a, b, ngl=50):
     """
@@ -26,9 +28,9 @@ def marg_lik_cov_1d(R, ellSE, sig2tM, elltM, sig2tSE, elltSE, sig2n, x, t, yvec,
     nx = x.shape[0]
     nt = t.shape[0]
 
-    Ks = compKphi_1d(x, x, R, ellSE, a, b, ngl=ngl)
+    Ks = compKphi_1d(x, x, R, ellSE, a, b, ngl=ngl) + JITTER
     Kt_res = compKt(t, t, sig2tM, elltM, sig2tSE, elltSE)
-    Kt = Kt_res[0] + Kt_res[1]
+    Kt = Kt_res[0] + Kt_res[1] 
     Qs, Qt, Dvec = comp_eig_D(Ks, Kt, sig2n)
     logdet = -0.5*ntrials*np.sum(np.log(Dvec))
 
