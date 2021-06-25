@@ -2,7 +2,7 @@
 
 Python implementation of Gaussian process current source density (CSD) estimation.
 
-Paper: Klein, N., Siegle, J.H., Teichert, T., Kass, R.E. (2021) Cross-population coupling of neural activity based on Gaussian process current source densities. (bioRxiv preprint -- coming soon)
+Paper: Klein, N., Siegle, J.H., Teichert, T., Kass, R.E. (2021) Cross-population coupling of neural activity based on Gaussian process current source densities. (preprint: https://arxiv.org/abs/2104.10070)
 
 This code estimates current source density over space and time from local field potential (LFP) recordings.
 
