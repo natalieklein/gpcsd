@@ -1,4 +1,4 @@
-# gpcsd (Gaussian process current source density estimation)
+# GPCSD (Gaussian process current source density estimation)
 
 Python implementation of Gaussian process current source density (CSD) estimation.
 
@@ -6,17 +6,17 @@ Paper: Klein, N., Siegle, J.H., Teichert, T., Kass, R.E. (2021) Cross-population
 
 This code estimates current source density over space and time from local field potential (LFP) recordings.
 
-## 1D 
-1D LFP recordings include those made by laminar/linear probes. The forward model assumes a cylinder of radius $R$ around the probe with constant CSD value.
-`demo_1D.py` generates ground truth data, then compares traditional second-spatial-derivative-based CSD estimation to GPCSD estimation.
+## Main source code
+Directory `src/gpcsd` contains the main source code. There are classes `gpcsd1d.py` and `gpcsd2d.py` for the GPCSD models, in addition to some support functions in other files.
 
-## 2D
-We consider 2D LFP recordings from Neuropixels probes and make certain assumptions in the forward model for this case. The forward model could be modified slightly to be appropriate for other 2D recording scenarios (such as Utah arrays).
-`demo_2D.py` generates ground truth data and again compares traditional CSD estimation to GPCSD estimation.
+## Simulation studies
+Simulation studies are found in `simulation_studies` and reproduce all simulation results shown in the paper. See `simulation_studies/README.md` for a full description of the scripts.
 
-## More info
-The demos above use the fixed, true Gaussian process hyperparameters to demonstrate the method. In practice, the Gaussian process marginal likelihood (found in `gp_lik.py`) can be optimized with respect to the hyperparameters using standard optimization libraries.
+## Auditory LFP analysis
+Here we apply GPCSD1D to two-probe auditory cortex LFPs measured in a macaque monkey. The scripts reproduce all results shown in the paper. See `auditory_lfp/README.md` for more information on the scripts and how to download the data.
 
+## Neuropixels analysis
+We apply GPCSD2D to LFP recordings from Neuropixels probes in a mouse. This reproduces the figures shown in the paper. See `neuropixels/README.md` for more detail.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4698746.svg)](https://doi.org/10.5281/zenodo.4698746)
 
