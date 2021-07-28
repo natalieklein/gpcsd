@@ -179,3 +179,10 @@ plt.tight_layout()
 plt.show()
 
 # %%
+gpcsd2_meansqerr = np.nanmean(np.square(normalize(gpcsd_model2.csd_pred[1:-1, :, :]) - normalize(csd2_interior_electrodes[1:-1, :, :])), axis=(0, 1)) 
+gpcsd3_meansqerr = np.nanmean(np.square(normalize(gpcsd_model3.csd_pred[1:-1, :, :]) - normalize(csd3_interior_electrodes[1:-1, :, :])), axis=(0, 1)) 
+
+print('GPCSD2 average MSE across trials: %0.3g' % np.mean(gpcsd2_meansqerr))
+print('GPCSD3 average MSE across trials: %0.3g' % np.mean(gpcsd3_meansqerr))
+
+# %%

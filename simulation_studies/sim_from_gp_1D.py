@@ -176,7 +176,7 @@ gpcsd_spacetime_rmse = np.sqrt(np.nanmean(np.square(normalize(gpcsd_model.csd_pr
 kcsd_spacetime_rmse = np.sqrt(np.nanmean(np.square(normalize(kcsd_values[1:-1, :, :]) - normalize(csd_interior_electrodes[:, :, 50:])), axis=2))
 
 plt.rcParams.update({'font.size': 14})
-plt.figure()
+plt.figure(figsize=(8, 5))
 plt.plot(np.arange(2, 24)*100, np.mean(kcsd_spacetime_rmse, 1), 'r.-', label="kCSD")
 plt.plot(np.arange(2, 24)*100, np.mean(gpcsd_spacetime_rmse, 1), 'g.-', label="GPCSD")
 plt.legend()
