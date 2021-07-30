@@ -122,6 +122,20 @@ class GPCSD2DSpatialCov:
         gl_w2 = 0.5 * (b2 - a2) * gl_w2
         self.gl_x2 = gl_t2
         self.gl_w2 = gl_w2
+        self.gl_x_grid = expand_grid(self.gl_x1, self.gl_x2)
+        self.gl_w_prod = np.prod(expand_grid(self.gl_w1, self.gl_w2), axis=1, keepdims=True)
+        self.delta1 = self.gl_x_grid[:, 0][None, :] - self.x[:, 0][:, None] # (nx1*nx2, ngl1*ngl2)
+        self.delta2 = self.gl_x_grid[:, 1][None, :] - self.x[:, 1][:, None] # (nx1*nx2, ngl1*ngl2)
+        self.gl_x1_sqdist = np.square(np.expand_dims(self.gl_x_grid[:, 0], 1)-np.expand_dims(self.gl_x_grid[:, 0], 1).T)
+        self.gl_x2_sqdist = np.square(np.expand_dims(self.gl_x_grid[:, 1], 1)-np.expand_dims(self.gl_x_grid[:, 1], 1).T)
+        self.delta_w = np.sqrt(np.square(self.delta1) + np.square(self.delta2))
+
+    def reset_x(self, x_new):
+        self.x = x_new
+        self.delta1 = self.gl_x_grid[:, 0][None, :] - self.x[:, 0][:, None] # (nx1*nx2, ngl1*ngl2)
+        self.delta2 = self.gl_x_grid[:, 1][None, :] - self.x[:, 1][:, None] # (nx1*nx2, ngl1*ngl2)
+        self.delta_w = np.sqrt(np.square(self.delta1) + np.square(self.delta2))
+
 
 class GPCSD2DSpatialCovSE(GPCSD2DSpatialCov):
     def __init__(self, x, ell_prior1=None, ell_prior2=None, a1=None, b1=None, a2=None, b2=None, ngl1=100, ngl2=100):
@@ -181,12 +195,9 @@ class GPCSD2DSpatialCovSE(GPCSD2DSpatialCov):
         """
         ell1 = self.params['ell1']['value']
         ell2 = self.params['ell2']['value']
-        gl_x = expand_grid(self.gl_x1, self.gl_x2)
-        Ks = np.exp(-0.5*np.square((gl_x[:, 0][:, None]-z[:, 0][None, :])/ell1))*np.exp(-0.5*np.square((gl_x[:, 1][:, None]-z[:, 1][None, :])/ell2))
-        delta1 = gl_x[:, 0][None, :] - self.x[:, 0][:, None] # (nx1*nx2, ngl1*ngl2)
-        delta2 = gl_x[:, 1][None, :] - self.x[:, 1][:, None] # (nx1*nx2, ngl1*ngl2)
-        fwd_wts = b_fwd_2d(delta1, delta2, R, eps) # (nx1*nx2, ngl1*ngl2)
-        A = np.prod(expand_grid(self.gl_w1, self.gl_w2), axis=1, keepdims=True).T * fwd_wts # TODO correct? expand_grid (ngl1*ngl2, 2)
+        Ks = np.exp(-0.5*np.square((self.gl_x_grid[:, 0][:, None]-z[:, 0][None, :])/ell1))*np.exp(-0.5*np.square((self.gl_x_grid[:, 1][:, None]-z[:, 1][None, :])/ell2))
+        fwd_wts = b_fwd_2d(None, None, R, eps, self.delta_w) # (nx1*nx2, ngl1*ngl2)
+        A = self.gl_w_prod.T * fwd_wts 
         res = np.dot(A, Ks)
         return res
 
@@ -200,23 +211,24 @@ class GPCSD2DSpatialCovSE(GPCSD2DSpatialCov):
         """ 
         ell1 = self.params['ell1']['value']
         ell2 = self.params['ell2']['value']
-        gl_x = expand_grid(self.gl_x1, self.gl_x2) # (ngl1*ngl2, 2)
-        gl_x1_grid = gl_x[:, 0][:, None]
-        gl_x2_grid = gl_x[:, 1][:, None]
-        Ks = np.exp(-0.5*np.square((gl_x1_grid-gl_x1_grid.T)/ell1))*np.exp(-0.5*np.square((gl_x2_grid-gl_x2_grid.T)/ell2)) # (ngl1*ngl2, ngl1*ngl2)
+        #gl_x1_grid = self.gl_x_grid[:, 0][:, None]
+        #gl_x2_grid = self.gl_x_grid[:, 1][:, None]
+        Ks = np.exp(-0.5*self.gl_x1_sqdist/(ell1**2))*np.exp(-0.5*self.gl_x2_sqdist/(ell2**2)) # (ngl1*ngl2, ngl1*ngl2)
         # x
-        delta1 = gl_x[:, 0][None, :] - self.x[:, 0][:, None] # (nx1*nx2, ngl1*ngl2)
-        delta2 = gl_x[:, 1][None, :] - self.x[:, 1][:, None] # (nx1*nx2, ngl1*ngl2)
-        fwd_wts = b_fwd_2d(delta1, delta2, R, eps) # (nx1*nx2, ngl1*ngl2)
-        A = np.prod(expand_grid(self.gl_w1, self.gl_w2), axis=1, keepdims=True).T * fwd_wts
-        res_x = np.dot(A, Ks)
+        #delta1 = gl_x[:, 0][None, :] - self.x[:, 0][:, None] # (nx1*nx2, ngl1*ngl2)
+        #delta2 = gl_x[:, 1][None, :] - self.x[:, 1][:, None] # (nx1*nx2, ngl1*ngl2)
+        fwd_wts = b_fwd_2d(None, None, R, eps, w=self.delta_w) # (nx1*nx2, ngl1*ngl2)
+        A = self.gl_w_prod.T * fwd_wts
+        #res_x = np.dot(A, Ks)
+        res_x = np.matmul(A, Ks)
         if xp is not None:
             # xp
-            delta1 = gl_x[:, 0][None, :] - xp[:, 0][:, None] # (ngl1*ngl2, nx1*nx2)
-            delta2 = gl_x[:, 1][None, :] - xp[:, 1][:, None] # (ngl1*ngl2, nx1*nx2)
+            delta1 = self.gl_x_grid[:, 0][None, :] - xp[:, 0][:, None] # (ngl1*ngl2, nx1*nx2)
+            delta2 = self.gl_x_grid[:, 1][None, :] - xp[:, 1][:, None] # (ngl1*ngl2, nx1*nx2)
             fwd_wts = b_fwd_2d(delta1, delta2, R, eps) # (nx1*nx2, ngl1*ngl2)
-            A = np.prod(expand_grid(self.gl_w1, self.gl_w2), axis=1, keepdims=True).T * fwd_wts
-        res = np.dot(res_x, A.T)
+            A = self.gl_w_prod.T * fwd_wts
+        #res = np.dot(res_x, A.T)
+        res = np.matmul(res_x, A.T)
         return res
 
 
