@@ -39,7 +39,7 @@ def fwd_model_1d(arr, x, z, R, varsigma=1):
     return R/(2*varsigma) * res
 
 
-def b_fwd_2d(delta1, delta2, R, eps):
+def b_fwd_2d(delta1, delta2, R, eps, w=None):
     """
     Computes b weight function from forward model for parameters R, epsilon (to handle singularity).
     :param delta1: differences between spatial coords dimension 1 (vector)
@@ -48,7 +48,8 @@ def b_fwd_2d(delta1, delta2, R, eps):
     :param eps: distance of zero charge between array and CSD to handle singularity
     :return: values of b_fwd for elements in delta1, delta2
     """
-    w = np.array(np.sqrt( np.square(delta1) + np.square(delta2) ))
+    if w is None:
+        w = np.array(np.sqrt( np.square(delta1) + np.square(delta2) ))
     wt = np.log(R+eps+np.sqrt((R+eps)**2 + w**2)) - np.log(eps+np.sqrt(eps**2 + w**2))
     return wt
 
