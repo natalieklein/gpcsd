@@ -3,11 +3,11 @@ Spatial and temporal covariance functions for GPCSD.
 
 """
 
-import quadpy
 import autograd.numpy as np
 
 from gpcsd.priors import *
 from gpcsd.forward_models import *
+from gpcsd.utility_functions import expand_grid, reduce_grid
 
 class GPCSD1DSpatialCov:
     def __init__(self, x, a, b, ngl):
@@ -94,6 +94,130 @@ class GPCSD1DSpatialCovSE(GPCSD1DSpatialCov):
         A = np.expand_dims(self.gl_w, 0) * fwd_wts
         res = np.dot(res_x, A.T)
         return res # (nx, nxp)
+
+
+class GPCSD2DSpatialCov:
+    def __init__(self, x, a1, b1, a2, b2, ngl1, ngl2):
+        self.x = x
+        self.a1 = a1
+        self.b1 = b1
+        self.a2 = a2
+        self.b2 = b2
+        self.ngl1 = ngl1
+        self.ngl2 = ngl2
+        # Trying non Gauss-Legendre in case...
+        #self.gl_x1 = np.linspace(a1, b1, ngl1)
+        #self.gl_x2 = np.linspace(a2, b2, ngl2)
+        #self.gl_w1 = np.repeat(self.gl_x1[1] - self.gl_x1[0], ngl1)
+        #self.gl_w2 = np.repeat(self.gl_x2[1] - self.gl_x2[0], ngl2)
+        # Gauss-Legendre
+        gl_x1, gl_w1 = scipy.special.roots_legendre(ngl1)
+        gl_x2, gl_w2 = scipy.special.roots_legendre(ngl2)
+        # Transform Gauss-Legendre weights to interval
+        gl_t1 = 0.5*(gl_x1 + 1)*(b1 - a1) + a1
+        gl_w1 = 0.5 * (b1 - a1) * gl_w1
+        self.gl_x1 = gl_t1
+        self.gl_w1 = gl_w1
+        gl_t2 = 0.5*(gl_x2 + 1)*(b2 - a2) + a2
+        gl_w2 = 0.5 * (b2 - a2) * gl_w2
+        self.gl_x2 = gl_t2
+        self.gl_w2 = gl_w2
+
+class GPCSD2DSpatialCovSE(GPCSD2DSpatialCov):
+    def __init__(self, x, ell_prior1=None, ell_prior2=None, a1=None, b1=None, a2=None, b2=None, ngl1=100, ngl2=100):
+        """
+        GPCSD1D Spatial covariance (Squared exponential).
+        :param x: spatial locations of observed LFP in 2D (n_spatial_lfp, 2)
+        :param ell_prior1: GPCSDPrior instance or None, prior for lengthscale in first spatial dim
+        :param ell_prior2: GPCSDPrior instance or None, prior for lengthscale in second spatial dim
+        :param a1: lower boundary for integration in first spatial dim
+        :param b1: upper boundary for integration in first spatial dim
+        :param a2: lower boundary for integration in second spatial dim
+        :param b2: upper boundary for integration in second spatial dim
+        :param ngl1: number of points to use in integration in first spatial dim
+        :param ngl2: number of points to use in integration in second spatial dim
+        """
+        GPCSD2DSpatialCov.__init__(self, x, a1, b1, a2, b2, ngl1, ngl2)
+        x1, x2 = reduce_grid(x)
+        if ell_prior1 is None:
+            ell_prior1 = GPCSDInvGammaPrior()
+            lb = 1.2 * np.min(np.diff(np.sort(x1).squeeze()))
+            ub = 0.8 * (np.max(np.sort(x1).squeeze()) - np.min(np.sort(x1).squeeze()))
+            ell_prior1.set_params(lb, ub)
+        if ell_prior2 is None:
+            ell_prior2 = GPCSDInvGammaPrior()
+            lb = 1.2 * np.min(np.diff(np.sort(x2).squeeze()))
+            ub = 0.8 * (np.max(np.sort(x2).squeeze()) - np.min(np.sort(x2).squeeze()))
+            ell_prior2.set_params(lb, ub)
+        # setup ell1 param
+        ell1 = ell_prior1.sample()
+        ell_min1 = 0.5 * np.min(np.diff(np.sort(x1).squeeze()))
+        ell_max1 = np.max(np.sort(x1).squeeze()) - np.min(np.sort(x1).squeeze())
+        # setup ell2 param
+        ell2 = ell_prior2.sample()
+        ell_min2 = 0.5 * np.min(np.diff(np.sort(x2).squeeze()))
+        ell_max2 = np.max(np.sort(x2).squeeze()) - np.min(np.sort(x2).squeeze())
+        self.params = {'ell1':{'value': ell1, 'prior':ell_prior1, 'min':ell_min1, 'max':ell_max1},
+                       'ell2':{'value': ell2, 'prior':ell_prior2, 'min':ell_min2, 'max':ell_max2}}
+
+    def compute_Ks(self):
+        """
+        Compute Ks (CSD spatial correlation).
+        :return: cov mat
+        """
+        x1 = self.x[:,0][:,None]
+        x2 = self.x[:,1][:,None]
+        ell1 = self.params['ell1']['value']
+        ell2 = self.params['ell2']['value']
+        return np.exp(-0.5*np.square((x1-x1.T)/ell1))*np.exp(-0.5*np.square((x2-x2.T)/ell2))
+
+    def compKphig_2d(self, z, R, eps):
+        """
+        Compute spatial cross-cov between CSD and LFP (fwd model applied to the x part).
+        :param z: vector (nz, 2) of 2D CSD locations
+        :param R: fwd model param value
+        :param eps: spacing in front of array to assume zero charge
+        :return: cross-covariance matrix
+        """
+        ell1 = self.params['ell1']['value']
+        ell2 = self.params['ell2']['value']
+        gl_x = expand_grid(self.gl_x1, self.gl_x2)
+        Ks = np.exp(-0.5*np.square((gl_x[:, 0][:, None]-z[:, 0][None, :])/ell1))*np.exp(-0.5*np.square((gl_x[:, 1][:, None]-z[:, 1][None, :])/ell2))
+        delta1 = gl_x[:, 0][None, :] - self.x[:, 0][:, None] # (nx1*nx2, ngl1*ngl2)
+        delta2 = gl_x[:, 1][None, :] - self.x[:, 1][:, None] # (nx1*nx2, ngl1*ngl2)
+        fwd_wts = b_fwd_2d(delta1, delta2, R, eps) # (nx1*nx2, ngl1*ngl2)
+        A = np.prod(expand_grid(self.gl_w1, self.gl_w2), axis=1, keepdims=True).T * fwd_wts # TODO correct? expand_grid (ngl1*ngl2, 2)
+        res = np.dot(A, Ks)
+        return res
+
+    def compKphi_2d(self, R, eps, xp=None):
+        """
+        Compute spatial LFP-LFP cov (fwd model applied to both x, xp)
+        :param xp: vector (nz, 2) of LFP locations for cross-cov with self.x (if None, use self.x)
+        :param R: parameter R
+        :param eps: spacing in front of array to assume zero charge
+        :return: covariance matrix
+        """ 
+        ell1 = self.params['ell1']['value']
+        ell2 = self.params['ell2']['value']
+        gl_x = expand_grid(self.gl_x1, self.gl_x2) # (ngl1*ngl2, 2)
+        gl_x1_grid = gl_x[:, 0][:, None]
+        gl_x2_grid = gl_x[:, 1][:, None]
+        Ks = np.exp(-0.5*np.square((gl_x1_grid-gl_x1_grid.T)/ell1))*np.exp(-0.5*np.square((gl_x2_grid-gl_x2_grid.T)/ell2)) # (ngl1*ngl2, ngl1*ngl2)
+        # x
+        delta1 = gl_x[:, 0][None, :] - self.x[:, 0][:, None] # (nx1*nx2, ngl1*ngl2)
+        delta2 = gl_x[:, 1][None, :] - self.x[:, 1][:, None] # (nx1*nx2, ngl1*ngl2)
+        fwd_wts = b_fwd_2d(delta1, delta2, R, eps) # (nx1*nx2, ngl1*ngl2)
+        A = np.prod(expand_grid(self.gl_w1, self.gl_w2), axis=1, keepdims=True).T * fwd_wts
+        res_x = np.dot(A, Ks)
+        if xp is not None:
+            # xp
+            delta1 = gl_x[:, 0][None, :] - xp[:, 0][:, None] # (ngl1*ngl2, nx1*nx2)
+            delta2 = gl_x[:, 1][None, :] - xp[:, 1][:, None] # (ngl1*ngl2, nx1*nx2)
+            fwd_wts = b_fwd_2d(delta1, delta2, R, eps) # (nx1*nx2, ngl1*ngl2)
+            A = np.prod(expand_grid(self.gl_w1, self.gl_w2), axis=1, keepdims=True).T * fwd_wts
+        res = np.dot(res_x, A.T)
+        return res
 
 
 class GPCSDTemporalCov:
