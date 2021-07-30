@@ -17,7 +17,7 @@ JITTER = 1e-7
 
 class GPCSD2D:
 
-    def __init__(self, lfp, x, t, a1=None, b1=None, a2=None, b2=None, ngl1=100, ngl2=100, 
+    def __init__(self, lfp, x, t, a1=None, b1=None, a2=None, b2=None, ngl1=20, ngl2=60, 
                  spatial_cov=None, temporal_cov_list=None, R_prior=None, sig2n_prior=None, eps=None):
         """
         :param lfp: LFP array, shape (n_spatial_lfp, n_time, n_trials); recommend rescaling to approximately std dev = 1
@@ -127,7 +127,7 @@ class GPCSD2D:
     def update_lfp(self, new_lfp, t, x=None):
         if x is not None:
             self.x = x
-            self.spatial_cov.x = x
+            self.spatial_cov.reset_x(x)
         self.t = t
         for tcov in self.temporal_cov_list:
             tcov.t = t
@@ -145,13 +145,13 @@ class GPCSD2D:
         logdet = -0.5*ntrials*np.sum(np.log(Dvec))
         quad = 0
         for trial in range(ntrials):
-            alpha = np.reshape(np.dot(np.dot(Qs.T,self.lfp[:, :, trial]),Qt),(nx*nt))
+            alpha = np.reshape(np.matmul(np.matmul(Qs.T,self.lfp[:, :, trial]),Qt),(nx*nt))
             quad = quad + np.sum(np.square(alpha)/Dvec)
         quad = -0.5 * quad
         return np.squeeze(logdet + quad)
 
-    def fit(self, n_restarts=10, method='L-BFGS-B', fix_R=False, verbose=False, 
-            options={'maxiter':1000, 'disp': True, 'gtol':1e-5, 'ftol':1e7 * np.finfo(float).eps}):
+    def fit(self, n_restarts=10, method='L-BFGS-B', fix_R=False, verbose=False, profile=False,
+            options={'maxiter':500, 'disp': True, 'gtol':1e-5, 'ftol':1e7 * np.finfo(float).eps}):
         # Store nll values and params over restarts
         nll_values = []
         params = []
@@ -212,7 +212,10 @@ class GPCSD2D:
                     prior_lpdf = prior_lpdf + self.sig2n['prior'][i].lpdf(self.sig2n['value'][i])
 
             # Compute likelihood
-            llik = self.loglik()
+            try:
+                llik = self.loglik()
+            except np.linalg.LinAlgError:
+                llik = -np.inf
             nll = -1.0 * (llik + prior_lpdf)
             return nll
 
@@ -234,6 +237,14 @@ class GPCSD2D:
                     tparams0.append(np.log(self.sig2n['prior'][i].sample())) # starting sig2n
             tparams0 =  np.array(tparams0)
 
+            # Profiling
+            if profile and _ == 0:
+                import cProfile
+                cProfile.runctx('obj_fun(tparams0)', None, locals(), filename='objfunstats')
+                g_obj_fun = grad(obj_fun)
+                cProfile.runctx('g_obj_fun(tparams0)', None, locals(), filename='gradobjfunstats')
+                return
+
             try:
                 optrescov = scipy.optimize.minimize(obj_fun, tparams0, method=method, options=options, bounds=bounds, jac=grad(obj_fun))
 
@@ -243,8 +254,10 @@ class GPCSD2D:
                 nll_values.append(nllcov)
                 params.append(tparams_fit)
                 term_msg.append(optrescov.message)
+            #except (ValueError, np.linalg.LinAlgError) as e:
             except ValueError as e:
                 print(e)
+                print('\nrestarting optimization...')
 
         nll_values = np.array(nll_values)
         if len(nll_values) < 1:
