@@ -77,4 +77,4 @@ def fwd_model_2d(arr, x1, x2, z, R, eps, varsigma=1):
             wt = b_fwd_2d(deltax1, deltax2, R, eps)
             toint = wt * arr_tmp # (nx1, nx2)
             res[i, t] = scipy.integrate.trapz(scipy.integrate.trapz(toint, x=np.squeeze(x1), axis=0), x=np.squeeze(x2), axis=0)
-    return res/(4*np.pi*varsigma)
+    return res #/(4*np.pi*varsigma)
