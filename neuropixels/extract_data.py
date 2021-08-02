@@ -1,6 +1,7 @@
 """
 Extracts visual area LFPs from Neuropixels nwb.lfp files, does some plotting, 
 and saves out per-region LFPs as pickle files for further analysis.
+Creates Figure 6A from the paper.
 """
 
 # %% imports
@@ -196,7 +197,7 @@ for pi, probe in enumerate(probe_list):
     plt.subplots_adjust(right=0.7)
     plt.tight_layout()
     plt.show()
-    
+
     # Try to get epochs (extract 1 second centered at stim)
     lfp_data = nwb_lfp['acquisition']['timeseries'][probe]['data']
 
