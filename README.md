@@ -33,7 +33,8 @@ We apply GPCSD2D to LFP recordings from Neuropixels probes in a mouse. This repr
 The Neuropixels data can be downloaded from https://doi.org/10.5281/zenodo.5150708.
 The code assumes that it will be downloaded into `neuropixels/data/`.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4698746.svg)](https://doi.org/10.5281/zenodo.4698746)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5154196.svg)](https://doi.org/10.5281/zenodo.5154196)
+
 
 
 
