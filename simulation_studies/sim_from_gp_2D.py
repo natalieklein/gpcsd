@@ -6,8 +6,6 @@ Simulate some data from 2D GP to test methods and evaluate errors.
 # %% Imports
 import matplotlib.pyplot as plt
 import autograd.numpy as np
-import scipy.interpolate
-import scipy.stats
 
 from gpcsd.gpcsd2d import GPCSD2D
 from gpcsd.covariances import *
@@ -133,50 +131,18 @@ gpcsd_model = GPCSD2D(lfp_sparse, x_grid, t, a1, b1, a2, b2, ngl1, ngl2, R_prior
                       eps=gpcsd_gen.eps, temporal_cov_list=[temporal_cov_SE, temporal_cov_M])
 print(gpcsd_model)
 
-# %% Profile Kphi
-#import cProfile
-#cProfile.runctx('gpcsd_model.spatial_cov.compKphi_2d(R_true, eps)', globals(), locals(), filename='Kphistats')
-
-# # %% Look at Kphi stats
-# import pstats
-# from pstats import SortKey
-# p = pstats.Stats('Kphistats')
-# p.strip_dirs().sort_stats(SortKey.CUMULATIVE).print_stats(20)
-# p.strip_dirs().sort_stats(SortKey.TIME).print_stats(20)
-# p.print_callers('\(compKphi')
-# p.print_callees('\(compKphi')
-
-# # %% Profile objective function and grad
-# gpcsd_model.fit(profile=True)
-
-# # %% Look at objective function stats
-# import pstats
-# from pstats import SortKey
-# p = pstats.Stats('objfunstats')
-# p.strip_dirs().sort_stats(SortKey.CUMULATIVE).print_stats(20)
-# p.strip_dirs().sort_stats(SortKey.TIME).print_stats(20)
-# #p.strip_dirs().sort_stats(-1).print_stats()
-
-# # %% Look at gradient stats
-# p = pstats.Stats('gradobjfunstats')
-# p.strip_dirs().sort_stats(SortKey.CUMULATIVE).print_stats(20)
-# p.strip_dirs().sort_stats(SortKey.TIME).print_stats(20)
-
 # %% Fit GPCSD model
 gpcsd_model.fit(n_restarts=10, verbose=True)
 
-# %%s
+# %% predict
 print(gpcsd_model)
 gpcsd_model.predict(z_grid, t)
 csd_pred_rect = gpcsd_model.csd_pred.reshape((nz1, nz2, nt, -1))
 
 # %% trad CSD on test data
-#lfp_sparse_rect = lfp_sparse.reshape((nx1, nx2, nt, -1)) 
-#lfp_sparse_rect = normalize(lfp_sparse_rect)
 tcsd_pred = predictcsd_trad_2d(lfp_sparse_rect)[:, 1:-1, :, :]
 
 # %%
-#tinds = [0]
 tinds = [0, 1, 2, 3]
 plt.figure(figsize=(16, 16))
 for ti in tinds:
@@ -190,11 +156,6 @@ for ti in tinds:
 for ti in tinds:
     plt.subplot(4,4,ti+1+8)
     plt.imshow(normalize(lfp_sparse_rect[:, :, ti, 0]).T, aspect='auto', cmap='bwr')
-
-for ti in tinds:
-    plt.subplot(4,4,ti+1+12)
-    #plt.imshow(normalize(csd_rect[:, :, ti, 0]).T, aspect='auto', cmap='bwr')
-plt.show()
 
 # %% Compute RMSE and R2
 rmse = np.sqrt(np.mean(np.square(csd_pred_rect - csd_dense_rect)))
