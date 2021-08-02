@@ -155,21 +155,21 @@ class GPCSD2DSpatialCovSE(GPCSD2DSpatialCov):
         x1, x2 = reduce_grid(x)
         if ell_prior1 is None:
             ell_prior1 = GPCSDInvGammaPrior()
-            lb = 1.2 * np.min(np.diff(np.sort(x1).squeeze()))
-            ub = 0.8 * (np.max(np.sort(x1).squeeze()) - np.min(np.sort(x1).squeeze()))
+            lb = 2.0 * np.min(np.diff(np.sort(x1).squeeze()))
+            ub = 2.0 * (np.max(np.sort(x1).squeeze()) - np.min(np.sort(x1).squeeze()))
             ell_prior1.set_params(lb, ub)
         if ell_prior2 is None:
             ell_prior2 = GPCSDInvGammaPrior()
-            lb = 1.2 * np.min(np.diff(np.sort(x2).squeeze()))
-            ub = 0.8 * (np.max(np.sort(x2).squeeze()) - np.min(np.sort(x2).squeeze()))
+            lb = 2.0 * np.min(np.diff(np.sort(x2).squeeze()))
+            ub = (np.max(np.sort(x2).squeeze()) - np.min(np.sort(x2).squeeze()))
             ell_prior2.set_params(lb, ub)
         # setup ell1 param
         ell1 = ell_prior1.sample()
-        ell_min1 = 0.5 * np.min(np.diff(np.sort(x1).squeeze()))
-        ell_max1 = np.max(np.sort(x1).squeeze()) - np.min(np.sort(x1).squeeze())
+        ell_min1 = np.min(np.diff(np.sort(x1).squeeze()))
+        ell_max1 = 5.0 * np.max(np.sort(x1).squeeze()) - np.min(np.sort(x1).squeeze())
         # setup ell2 param
         ell2 = ell_prior2.sample()
-        ell_min2 = 0.5 * np.min(np.diff(np.sort(x2).squeeze()))
+        ell_min2 = np.min(np.diff(np.sort(x2).squeeze()))
         ell_max2 = np.max(np.sort(x2).squeeze()) - np.min(np.sort(x2).squeeze())
         self.params = {'ell1':{'value': ell1, 'prior':ell_prior1, 'min':ell_min1, 'max':ell_max1},
                        'ell2':{'value': ell2, 'prior':ell_prior2, 'min':ell_min2, 'max':ell_max2}}
