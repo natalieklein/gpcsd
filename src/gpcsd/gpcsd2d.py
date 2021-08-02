@@ -216,7 +216,7 @@ class GPCSD2D:
                 llik = self.loglik()
             except np.linalg.LinAlgError as e:
                 llik = -np.inf
-                print(e)
+                #print(e)
             nll = -1.0 * (llik + prior_lpdf) #* 1e-7
             return nll
 
