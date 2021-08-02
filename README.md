@@ -6,6 +6,8 @@ Paper: Klein, N., Siegle, J.H., Teichert, T., Kass, R.E. (2021) Cross-population
 
 This code estimates current source density over space and time from local field potential (LFP) recordings.
 
+## Installation (TODO)
+
 ## Main source code
 Directory `src/gpcsd` contains the main source code. There are classes `gpcsd1d.py` and `gpcsd2d.py` for the GPCSD models, in addition to some support functions in other files.
 

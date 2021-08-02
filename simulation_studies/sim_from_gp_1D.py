@@ -154,8 +154,18 @@ tcsd_meansqerr = np.nanmean(np.square(normalize(tcsd_pred[1:-1, :, :]) - normali
 gpcsd_meansqerr = np.nanmean(np.square(normalize(gpcsd_model.csd_pred[1:-1, :, :]) - normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1)) 
 kcsd_meansqerr = np.nanmean(np.square(normalize(kcsd_values[2:-2, :, :]) - normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1)) 
 
+tcsd_rsq = 1 - np.sum(np.square(normalize(tcsd_pred[1:-1, :, :]) - normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1))/np.sum(np.square(normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1))
+gpcsd_rsq = 1 - np.sum(np.square(normalize(gpcsd_model.csd_pred[1:-1, :, :]) - normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1))/np.sum(np.square(normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1))
+kcsd_rsq = 1 - np.sum(np.square(normalize(kcsd_values[2:-2, :, :]) - normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1))/np.sum(np.square(normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1))
+
 plt.figure()
 plt.boxplot([tcsd_meansqerr, gpcsd_meansqerr, kcsd_meansqerr], labels=['tCSD', 'GPCSD', 'kCSD'])
+plt.ylabel('MSE')
+plt.show()
+
+plt.figure()
+plt.boxplot([tcsd_rsq, gpcsd_rsq, kcsd_rsq], labels=['tCSD', 'GPCSD', 'kCSD'])
+plt.ylabel('R^2')
 plt.show()
 
 print('tCSD average MSE across trials: %0.3g' % np.mean(tcsd_meansqerr))
@@ -169,6 +179,10 @@ print('GPCSD median MSE across trials: %0.3g' % np.median(gpcsd_meansqerr))
 print('tCSD min MSE across trials: %0.3g' % np.min(tcsd_meansqerr))
 print('kCSD min MSE across trials: %0.3g' % np.min(kcsd_meansqerr))
 print('GPCSD min MSE across trials: %0.3g' % np.min(gpcsd_meansqerr))
+
+print('tCSD average R^2 across trials: %0.3g' % np.mean(tcsd_rsq))
+print('kCSD average R^2 across trials: %0.3g' % np.mean(kcsd_rsq))
+print('GPCSD average R^2 across trials: %0.3g' % np.mean(gpcsd_rsq))
 
 # %%
 tcsd_spacetime_rmse = np.sqrt(np.nanmean(np.square(normalize(tcsd_pred) - normalize(csd_interior_electrodes[:, :, 50:])), axis=2))
