@@ -19,7 +19,6 @@ import scipy.interpolate
 import copy
 import os
 import os.path
-root_path = os.path.abspath(__file__)
 import scipy.io
 from joblib import Parallel, delayed
 import multiprocessing
@@ -32,6 +31,8 @@ from gpcsd.forward_models import fwd_model_1d
 from kcsd import KCSD1D # https://github.com/Neuroinflab/kCSD-python/releases/tag/v2.0
 
 # %% Setup
+root_path = '/'.join(os.path.abspath(__file__).split('/')[:-1])
+
 np.random.seed(0)
 
 # Probe limits (in microns)
@@ -383,6 +384,7 @@ tau2 = shifted_times['medial'] - np.mean(shifted_times['medial'], 0)
 tau2 /= np.std(tau2, 0)
 tau_all = np.hstack([tau1, tau2])
 
+ntrials = tau_all.shape[0]
 taucorr = np.corrcoef(tau_all, rowvar=False)
 # use Fisher's z to get pvalues
 taucorr_z = np.arctanh(taucorr)
@@ -476,3 +478,7 @@ f.text(0.65, 0.9, 'B', fontsize=22)
 plt.show()
 
 
+
+# %%
+
+# %%

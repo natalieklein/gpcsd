@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import scipy.io
 import pickle
 import os.path
-root_path = os.path.abspath(__file__)
+root_path = '/'.join(os.path.abspath(__file__).split('/')[:-1])
 
 from gpcsd.gpcsd1d import GPCSD1D
 from gpcsd.covariances import *
@@ -343,3 +343,5 @@ plt.show()
 scipy.io.savemat('%s/results/csd_lfp_filt_phases_%s.mat' % (root_path, probe_name), {'csd':csd_fast_phase[:, 350, :], 'lfp':lfp_fast_phase[:, 350, :]})
 
 
+
+# %%

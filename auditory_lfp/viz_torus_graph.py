@@ -10,7 +10,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
 import os.path
-root_path = os.path.abspath(__file__)
+root_path = '/'.join(os.path.abspath(__file__).split('/')[:-1])
 
 # %% Load results from Matlab
 # model fit on original data
