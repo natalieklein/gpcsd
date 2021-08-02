@@ -1,6 +1,7 @@
 
 """
-Visualize torus graphs bootstrap computed by fit_torus_graph.m on Neuropixels data
+Visualize torus graphs bootstrap computed by fit_torus_graph.m on Neuropixels data.
+Generates Figure 6 B/C from paper.
 """
 # %% imports
 import matplotlib
