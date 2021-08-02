@@ -12,7 +12,7 @@ import scipy.io
 import networkx as nx
 import scipy.special
 import os.path
-root_path = os.path.abspath(__file__)
+root_path = '/'.join(os.path.abspath(__file__).split('/')[:-1])
 
 plt.rcParams.update({'font.size': 18})
 

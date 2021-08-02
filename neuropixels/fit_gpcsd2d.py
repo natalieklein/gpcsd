@@ -11,7 +11,7 @@ import os
 from scipy import signal
 import scipy.io
 import os.path
-root_path = os.path.abspath(__file__)
+root_path = '/'.join(os.path.abspath(__file__).split('/')[:-1])
 
 from gpcsd.gpcsd2d import GPCSD2D
 from gpcsd.covariances import GPCSD2DSpatialCov, GPCSD2DSpatialCovSE, GPCSDTemporalCovMatern, GPCSDTemporalCovSE
