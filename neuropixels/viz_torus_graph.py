@@ -11,12 +11,14 @@ import os
 import scipy.io
 import networkx as nx
 import scipy.special
+import os.path
+root_path = os.path.abspath(__file__)
 
 plt.rcParams.update({'font.size': 18})
 
 # %% Load data
-np_tg = scipy.io.loadmat('results/neuropixel_tg.mat')
-np_tg_boot = scipy.io.loadmat('results/bootstrap_neuropixels.mat')
+np_tg = scipy.io.loadmat('%s/results/neuropixel_tg.mat' % root_path)
+np_tg_boot = scipy.io.loadmat('%s/results/bootstrap_neuropixels.mat' % root_path)
 
 beta_pvals = np.zeros((8, 8, 2))
 counter = 0

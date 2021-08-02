@@ -11,6 +11,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import pickle
+import os.path
+root_path = os.path.abspath(__file__)
 
 plt.rcParams.update({'font.size': 16})
 
@@ -51,10 +53,10 @@ csd_loc = {'probeC': [2260., 2450., 2650., 2785.], 'probeD': [2215., 2410., 2590
 
 # %% Files for LFP and spiking data
 # Data available at https://doi.org/10.5281/zenodo.5150708
-lfp_nwb_file = os.path.join('data/', 'mouse' + m_id + '.lfp.nwb')
+lfp_nwb_file = '%s/data/mouse405751.lfp.nwb' % root_path
 nwb_lfp = h5.File(lfp_nwb_file)
 
-spikes_nwb_file = os.path.join('data/', 'mouse' + m_id + '.spikes.nwb')
+spikes_nwb_file = '%s/data/mouse405751.spikes.nwb' % root_path
 nwb = h5.File(spikes_nwb_file)
 
 # %% Loop over probes to get data
@@ -285,7 +287,7 @@ for pi, probe in enumerate(probe_list):
     # Save data for visual regions
     viz_lfp = lfp_mat[lfp_ch_labels == roi_codes['V'], :, :] # (nx_viz, nt, ntrials)
     viz_save = {'x':viz_loc, 'y':viz_lfp, 't':t, 'fs':lfp_sample_rate, 'roi':viz_roi_labels[probe]}
-    with open('results/neuropixel_viz_%s_m%s.pkl'%(probe, m_id),'wb') as f:
+    with open('%s/results/neuropixel_viz_%s_m%s.pkl'%(root_path, probe, m_id),'wb') as f:
         pickle.dump(viz_save, f)
 
 

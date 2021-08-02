@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import os
 from scipy import signal
 import scipy.io
+import os.path
+root_path = os.path.abspath(__file__)
 
 from gpcsd.gpcsd2d import GPCSD2D
 from gpcsd.covariances import GPCSD2DSpatialCov, GPCSD2DSpatialCovSE, GPCSDTemporalCovMatern, GPCSDTemporalCovSE
@@ -28,7 +30,7 @@ z = {}
 for probe in ['probeC', 'probeD']:
 
     # Load data (saved by extract_data.py)
-    with open('results/neuropixel_viz_%s_m405751.pkl' % probe, 'rb') as f:
+    with open('%s/results/neuropixel_viz_%s_m405751.pkl' % (root_path, probe), 'rb') as f:
         d = pickle.load(f)
 
     x[probe] = d['x']   # (69, 2) spatial locations, microns
@@ -89,8 +91,8 @@ for probe in ['probeC', 'probeD']:
                           a2=np.min(x[probe][:, 1])-100, b2=np.max(x[probe][:, 1])+100)
     print(gpcsd_model)
 
-    if reload_model and os.path.isfile('results/%s_model_csd_pred.pkl' % probe):
-        with open('results/%s_model_csd_pred.pkl' % probe, 'rb') as f:
+    if reload_model and os.path.isfile('%s/results/%s_model_csd_pred.pkl' % (root_path, probe)):
+        with open('%s/results/%s_model_csd_pred.pkl' % (root_path, probe), 'rb') as f:
             results = pickle.load(f)
         gpcsd_model.restore_model_params(results['params'])
         csdSE[probe] = results['csd0']
@@ -110,7 +112,7 @@ for probe in ['probeC', 'probeD']:
 
         # Saving
         params = gpcsd_model.extract_model_params()
-        with open('results/%s_model_csd_pred.pkl' % probe, 'wb') as f:
+        with open('%s/results/%s_model_csd_pred.pkl' % (root_path, probe), 'wb') as f:
             pickle.dump({'params':params, 'csd0':csd_pred0, 'csd1':csd_pred1, 'x':z[probe], 't':t}, f)
 
 # %% Power spectra
@@ -131,6 +133,7 @@ for probe, probe_name in zip(['probeC', 'probeD'], ['V1', 'LM']):
     plt.xlabel('Frequency (Hz)')
     plt.title("%s CSD periodogram" % probe_name)
     plt.legend()
+    plt.show()
 
 # %% Filtering
 def butter_bandpass(lowcut, highcut, fs, order=5):
@@ -152,5 +155,5 @@ for probe, probe_name in zip(['probeC', 'probeD'], ['V1', 'LM']):
         # TODO get time index of interest
         ti = np.array([np.argmin(np.abs(t.squeeze() - 0.0)), np.argmin(np.abs(t.squeeze() - 70.0))])
         phases[bk] = phase_tmp[:, ti, :]
-    scipy.io.savemat('results/neuropixel_csd_%s_phases.mat' % probe_name, phases)
+    scipy.io.savemat('%s/results/neuropixel_csd_%s_phases.mat' % (root_path, probe_name), phases)
 # %%
