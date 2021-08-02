@@ -6,10 +6,15 @@ Paper: Klein, N., Siegle, J.H., Teichert, T., Kass, R.E. (2021) Cross-population
 
 This code estimates current source density over space and time from local field potential (LFP) recordings.
 
-## Installation (TODO)
+Full source code available at https://github.com/natalieklein/gpcsd.
+
+## Installation
+Install using `pip install gpcsd`. 
+To get the scripts to reproduce the paper results, get the source code from github: https://github.com/natalieklein/gpcsd.
+Dependencies may be installed as described below.
 
 ## Dependencies
-The file `environment.yml` can be used to set up an anaconda environment called `gpcsd` with most of the required packages.
+The file `environment.yml` in the full source code can be used to set up an anaconda environment called `gpcsd` with most of the required packages.
 These include very common packages (`numpy`, `scipy`, `matplotlib`, `h5py`, `ipykernel`) along with a few more specialized packages (`scikit-image`, `joblib`, `networkx`, `tqdm`, and `autograd`). 
 You will also need to install the `kCSD-python` package manually (download source from https://github.com/Neuroinflab/kCSD-python/releases/tag/v2.0, then `cd` to the `kCSD-python/` directory and run `python setup.py install` inside activated anaconda environment).
 Finally, there are some Matlab files for the torus graphs analysis. 
