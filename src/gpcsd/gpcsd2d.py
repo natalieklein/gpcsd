@@ -70,13 +70,13 @@ class GPCSD2D:
             eps = 5 * min_delta_x
         self.eps = eps
         if sig2n_prior is None: 
-            sig2n_prior = GPCSDHalfNormalPrior(0.1)
-            self.sig2n = {'value': sig2n_prior.sample(), 'prior': sig2n_prior, 'min': 1e-8, 'max': 0.5}
+            sig2n_prior = GPCSDHalfNormalPrior(1.0)
+            self.sig2n = {'value': sig2n_prior.sample(), 'prior': sig2n_prior, 'min': 1e-8, 'max': 10.0}
         elif isinstance(sig2n_prior, list):
             self.sig2n = {'value': np.array([sp.sample() for sp in sig2n_prior]), 'prior': sig2n_prior, 
-                          'min': [1e-8] * len(sig2n_prior), 'max': [0.5] * len(sig2n_prior)}
+                          'min': [1e-8] * len(sig2n_prior), 'max': [10.0] * len(sig2n_prior)}
         else:
-            self.sig2n = {'value': sig2n_prior.sample(), 'prior': sig2n_prior, 'min': 1e-8, 'max': 0.5}
+            self.sig2n = {'value': sig2n_prior.sample(), 'prior': sig2n_prior, 'min': 1e-8, 'max': 10.0}
 
     def __str__(self):
         s = "GPCSD1D object\n"
@@ -214,9 +214,10 @@ class GPCSD2D:
             # Compute likelihood
             try:
                 llik = self.loglik()
-            except np.linalg.LinAlgError:
+            except np.linalg.LinAlgError as e:
                 llik = -np.inf
-            nll = -1.0 * (llik + prior_lpdf)
+                print(e)
+            nll = -1.0 * (llik + prior_lpdf) #* 1e-7
             return nll
 
         for _ in tqdm(range(n_restarts), desc="Restarts"):
