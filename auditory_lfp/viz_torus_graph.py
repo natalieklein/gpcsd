@@ -9,15 +9,17 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import networkx as nx
+import os.path
+root_path = os.path.abspath(__file__)
 
 # %% Load results from Matlab
 # model fit on original data
-mat = scipy.io.loadmat('results/twoprobe_tg.mat')
+mat = scipy.io.loadmat('%s/results/twoprobe_tg.mat' % root_path)
 ntests = 48*(48-1)/2
 phi_lfp = mat['phi_hat_lfp']
 phi_csd = mat['phi_hat_csd']
 # bootstrapped partial PLV
-boot_mat = scipy.io.loadmat('results/bootstrap_pplv_tg.mat')
+boot_mat = scipy.io.loadmat('%s/results/bootstrap_pplv_tg.mat' % root_path)
 
 # layer boundaries for superficial/medium/deep
 layerbounds = 100*(np.array([11, 16])-1)
@@ -186,7 +188,6 @@ vmin = vrange[0]
 vmax = vrange[1]
 print('CI lb min %0.2f, max %0.2f' % (np.min(ci_lb_ordered), np.max(ci_lb_ordered)))
 
-#cmap = matplotlib.cm.get_cmap('Blues', 4)
 from matplotlib.colors import LinearSegmentedColormap
 colors = plt.cm.Blues(np.linspace(0.2, 1.0, 4))
 cmap = LinearSegmentedColormap.from_list('name', colors)

@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import scipy.io
 import pickle
 import os.path
+root_path = os.path.abspath(__file__)
 
 from gpcsd.gpcsd1d import GPCSD1D
 from gpcsd.covariances import *
@@ -21,7 +22,6 @@ from gpcsd.utility_functions import normalize
 # %% Setup
 np.random.seed(0)
 
-save_path = 'results/' # path to save results (relative to this file, or absolute)
 n_restarts = 10 # how many random initializations for GP fitting
 ntrials_fit = None # how many trials to use in fitting; None uses all
 probe_name = "lateral" # choose "medial" or "lateral"
@@ -58,13 +58,13 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
 # %% Load LFP data
 lfp = []
 for i in range(24):
-    lfp.append(np.loadtxt('data/%s_electrode%d.txt' % (probe_name, i+1)))
+    lfp.append(np.loadtxt('%s/data/%s_electrode%d.txt' % (root_path, probe_name, i+1)))
 lfp = np.array(lfp) # (n_elec, time, trials)
 lfp /= 100.0 # Rescale for numerical reasons
 lfp -= np.mean(lfp, 2, keepdims=True)
 
 # %% Subset to baseline period
-time = np.loadtxt('data/time.txt') * 1000. # Time in seconds, convert to ms
+time = np.loadtxt('%s/data/time.txt' % root_path) * 1000. # Time in seconds, convert to ms
 time_idx = time < 0
 t = time[time_idx][:, None] 
 lfp_baseline = lfp[:, time_idx, :]
@@ -88,15 +88,15 @@ gpcsd_model = GPCSD1D(lfp_baseline[:, :, trials_sel], x, t,
                       spatial_cov=spatial_cov, 
                       temporal_cov_list=[SE_cov, matern_cov], a=-200.0, b=2600.0)
 
-if reload_model and os.path.isfile('results/gpcsd_model_%s.pkl' % probe_name):
-    with open('%s/gpcsd_model_%s.pkl' % (save_path, probe_name), 'rb') as f:
+if reload_model and os.path.isfile('%s/results/gpcsd_model_%s.pkl' % (root_path, probe_name)):
+    with open('%s/results/gpcsd_model_%s.pkl' % (root_path, probe_name), 'rb') as f:
         params = pickle.load(f)
     gpcsd_model.restore_model_params(params)
 else:
     gpcsd_model.fit(n_restarts=n_restarts, verbose=True)
 
 params = gpcsd_model.extract_model_params()
-with open('%s/gpcsd_model_%s.pkl' % (save_path, probe_name), 'wb') as f:
+with open('%s/results/gpcsd_model_%s.pkl' % (root_path, probe_name), 'wb') as f:
     pickle.dump(params, f)
 
 # %% Predict during baseline period
@@ -253,7 +253,7 @@ ax[2].invert_yaxis()
 ax[2].legend(['CSD', 'LFP'])
 ax[2].text(-0.5, -1.6, 'B', fontsize=20)
 plt.tight_layout()
-plt.savefig('../final_revision_figures/fig2ab.png')
+plt.show()
 
 plt.rcParams.update({'font.size': 16})
 plt.figure(figsize=(10, 4))
@@ -294,6 +294,7 @@ plt.title('CSD fast')
 plt.subplot(326, sharey=ax_lfp)
 plt.plot(gpcsd_model.t_pred, gpcsd_model.lfp_pred_list[1][13, :, ::100])
 plt.title('LFP fast')
+plt.show()
 
 
 # %% Filter to 10Hz to extract phase angles
@@ -339,6 +340,6 @@ plt.plot(gpcsd_model.t_pred.squeeze(), np.nanmean(plv_lfp.reshape((24*24, -1)), 
 plt.show()
 
 # %% Save phases at time point index 350 for Matlab analysis
-scipy.io.savemat('%s/csd_lfp_filt_phases_%s.mat' % (save_path, probe_name), {'csd':csd_fast_phase[:, 350, :], 'lfp':lfp_fast_phase[:, 350, :]})
+scipy.io.savemat('%s/results/csd_lfp_filt_phases_%s.mat' % (root_path, probe_name), {'csd':csd_fast_phase[:, 350, :], 'lfp':lfp_fast_phase[:, 350, :]})
 
 

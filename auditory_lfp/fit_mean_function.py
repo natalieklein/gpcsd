@@ -18,6 +18,8 @@ from skimage import morphology
 import scipy.interpolate
 import copy
 import os
+import os.path
+root_path = os.path.abspath(__file__)
 import scipy.io
 from joblib import Parallel, delayed
 import multiprocessing
@@ -48,22 +50,22 @@ layerbounds = 100*(np.array([11, 16])-1)
 layerlabs = ['Superficial', 'Medium', 'Deep']
 
 # %% Get GPCSD and KCSD evoked response estimates
-time = np.loadtxt('data/time.txt') * 1000. # Time in seconds, convert to ms
+time = np.loadtxt('%s/data/time.txt' % root_path) * 1000. # Time in seconds, convert to ms
 trial_pred_time_idx = np.logical_and(time >= 0, time <= 150)
 trial_pred_t = time[trial_pred_time_idx][:, None] 
 
-if os.path.isfile('results/gpcsd_lfp_trials.pkl'):
-    with open('results/gpcsd_lfp_trials.pkl', 'rb') as f:
+if os.path.isfile('%s/results/gpcsd_lfp_trials.pkl' % root_path):
+    with open('%s/results/gpcsd_lfp_trials.pkl' % root_path, 'rb') as f:
         lfp_trials = pickle.load(f)
 else:
     lfp_trials = {}
 evoked = {}
 cov = {}
 for probe_name in ['medial', 'lateral']:
-    if os.path.isfile('results/gpcsd_evoked_%s.pkl' % probe_name):
-        with open('results/gpcsd_evoked_%s.pkl' % probe_name, 'rb') as f:
+    if os.path.isfile('%s/results/gpcsd_evoked_%s.pkl' % (root_path, probe_name)):
+        with open('%s/results/gpcsd_evoked_%s.pkl' % (root_path, probe_name), 'rb') as f:
             evoked[probe_name] = pickle.load(f)
-        with open('results/gpcsd_cov_%s.pkl' % probe_name, 'rb') as f:
+        with open('%s/results/gpcsd_cov_%s.pkl' % (root_path, probe_name), 'rb') as f:
             cov[probe_name] = pickle.load(f)
     else:
         evoked_probe = {}
@@ -71,7 +73,7 @@ for probe_name in ['medial', 'lateral']:
         # Load LFP data
         lfp = []
         for i in range(24):
-            lfp.append(np.loadtxt('data/%s_electrode%d.txt' % (probe_name, i+1)))
+            lfp.append(np.loadtxt('%s/data/%s_electrode%d.txt' % (root_path, probe_name, i+1)))
         lfp = np.array(lfp) # (n_elec, time, trials)
         lfp /= 100.0 # Rescale 
         lfp_trial_pred = lfp[:, trial_pred_time_idx, :]
@@ -91,7 +93,7 @@ for probe_name in ['medial', 'lateral']:
                             sig2n_prior=sig2n_prior,
                             spatial_cov=spatial_cov, 
                             temporal_cov_list=[SE_cov, matern_cov], a=-200.0, b=2600.0)
-        with open('results/gpcsd_model_%s.pkl' % probe_name, 'rb') as f:
+        with open('%s/results/gpcsd_model_%s.pkl' % (root_path, probe_name), 'rb') as f:
             params = pickle.load(f)
         gpcsd_model.restore_model_params(params)
         # Store covariance information for later
@@ -111,11 +113,11 @@ for probe_name in ['medial', 'lateral']:
         kcsd_evoked_model.cross_validate(Rs=np.linspace(100, 800, 15), lambdas=np.logspace(1,-15,25,base=10.))
         evoked_probe['kcsd'] = kcsd_evoked_model.values()
 
-        with open('results/gpcsd_evoked_%s.pkl' % probe_name, 'wb') as f:
+        with open('%s/results/gpcsd_evoked_%s.pkl' % (root_path, probe_name), 'wb') as f:
             pickle.dump(evoked_probe, f)
         evoked[probe_name] = evoked_probe
 
-        with open('results/gpcsd_cov_%s.pkl' % probe_name, 'wb') as f:
+        with open('%s/results/gpcsd_cov_%s.pkl' % (root_path, probe_name), 'wb') as f:
             pickle.dump(cov_probe, f)
         cov[probe_name] = cov_probe
 
@@ -130,18 +132,18 @@ for probe_name in ['medial', 'lateral']:
     plt.subplot(133)
     plt.imshow(normalize(evoked[probe_name]['kcsd']), cmap='bwr', vmin=-1, vmax=1, aspect='auto')
     plt.title('kCSD on evoked')
-    plt.savefig('../final_revision_figures/supplement_gpcsd_kcsd_evoked_%s.png' % probe_name)
+    plt.show()
 
-with open('results/gpcsd_lfp_trials.pkl', 'wb') as f:
+with open('%s/results/gpcsd_lfp_trials.pkl' % root_path, 'wb') as f:
     pickle.dump(lfp_trials, f)
 
 # %% Load evoked MUA, compute trial values relative to baseline
-mua_lateral_evoked = np.loadtxt('data/lateral_evoked_mua.txt')
+mua_lateral_evoked = np.loadtxt('%s/data/lateral_evoked_mua.txt' % root_path)
 mua_base = np.mean(mua_lateral_evoked[:, :100], 1, keepdims=True)
 mua_lateral_evoked = mua_lateral_evoked - mua_base
 mua_lateral_evoked = mua_lateral_evoked[:, 100:250]/np.max(mua_lateral_evoked[:, 100:250])
 
-mua_medial_evoked = np.loadtxt('data/medial_evoked_mua.txt')
+mua_medial_evoked = np.loadtxt('%s/data/medial_evoked_mua.txt' % root_path)
 mua_base = np.mean(mua_medial_evoked[:, :100], 1, keepdims=True)
 mua_medial_evoked = mua_medial_evoked - mua_base
 mua_medial_evoked = mua_medial_evoked[:, 100:250]/np.max(mua_medial_evoked[:, 100:250])
@@ -189,7 +191,7 @@ for probe_name in ['medial', 'lateral']:
     print('%s probe, found %d regions'% (probe_name, len(labelnames_all)-1))
 
     # Load GPCSD model params to get R value
-    with open('results/gpcsd_model_%s.pkl' % probe_name, 'rb') as f:
+    with open('%s/results/gpcsd_model_%s.pkl' % (root_path, probe_name), 'rb') as f:
         params = pickle.load(f)
 
     # Compute fwd model on each cluster
@@ -298,7 +300,7 @@ plt.show()
 
 # %% Per-component shifts -- may take a while, depending on number of processors (optimization done in parallel for each trial)
 for probe_name in ['lateral', 'medial']:
-    if not os.path.isfile('results/per_trial_shifts_%s.txt' % probe_name):
+    if not os.path.isfile('%s/results/per_trial_shifts_%s.txt' % (root_path, probe_name)):
         n_seg = np.max(csd_segments[probe_name])
         tau0 = np.zeros(n_seg)
         # prior/regularizer on shifts
@@ -335,12 +337,12 @@ for probe_name in ['lateral', 'medial']:
             print('succeeded percent: %0.2f' % np.mean(suc))
         
         tau_hat = np.array(tau_hat) # (ntrials, n_seg)
-        np.savetxt('results/per_trial_shifts_%s.txt' % probe_name, tau_hat)
+        np.savetxt('%s/results/per_trial_shifts_%s.txt' % (root_path, probe_name), tau_hat)
 
 # %% Load precomputed shifts for further analysis/visualization
 tau = {}
-tau['lateral'] = np.loadtxt('results/per_trial_shifts_lateral.txt')
-tau['medial'] = np.loadtxt('results/per_trial_shifts_medial.txt')
+tau['lateral'] = np.loadtxt('%s/results/per_trial_shifts_lateral.txt' % root_path)
+tau['medial'] = np.loadtxt('%s/results/per_trial_shifts_medial.txt' % root_path)
 
 print('lateral time shift m=%0.2g, sd=%0.2g' % (np.mean(tau['lateral']), np.std(tau['lateral'])))
 print('medial time shift m=%0.2g, sd=%0.2g' % (np.mean(tau['medial']), np.std(tau['medial'])))
@@ -474,14 +476,3 @@ f.text(0.65, 0.9, 'B', fontsize=22)
 plt.show()
 
 
-
-
-
-
-
-
-
-
-
-
-# %%
