@@ -2,22 +2,15 @@
 Utility functions for CSD methods.
 """
 
-import numpy as np
-import scipy
-import matplotlib.pyplot as plt
+import autograd.numpy as np
 
-
-def plot_im(arr, v1, v2):
-    p = plt.imshow(arr, vmin=-np.nanmax(np.abs(arr)), vmax=np.nanmax(np.abs(arr)), cmap='bwr', aspect='auto',
-                   extent=[np.min(v1), np.max(v1), np.max(v2), np.min(v2)])
-    return p
-
+def normalize(x):
+    return x/np.max(np.abs(x), axis=(0, 1))
 
 def sort_grid(x):
     xsrt = x[x[:, 1].argsort()]
     xsrt = xsrt[xsrt[:, 0].argsort(kind='mergesort')]
     return xsrt
-
 
 def expand_grid(x1,x2):
     """
@@ -29,17 +22,15 @@ def expand_grid(x1,x2):
     lc = [(a, b) for a in x1 for b in x2]
     return np.squeeze(np.array(lc))
 
-
 def reduce_grid(x):
     """
     Undoes expand_grid to take (nx, 2) array to two vectors containing unique values of each col.
     :param x: (nx, 2) points
     :return: x1, x2 each vectors
     """
-    x1 = np.unique(x[:,0])
-    x2 = np.unique(x[:,1])
+    x1 = np.sort(np.unique(x[:,0]))
+    x2 = np.sort(np.unique(x[:,1]))
     return x1, x2
-
 
 def mykron(A, B):
     """
@@ -47,9 +38,8 @@ def mykron(A, B):
     """
     a1, a2 = A.shape
     b1, b2 = B.shape
-    C = np.reshape(A[:, np.newaxis, :, np.newaxis] * B[np.newaxis, :, np.newaxis, :], (a1*b1, a2*b2))
+    C = np.reshape(np.expand_dims(A, (1, 3)) * np.expand_dims(B, (0, 2)), (a1*b1, a2*b2))
     return C
-
 
 def comp_eig_D(Ks, Kt, sig2n):
     """
@@ -61,7 +51,14 @@ def comp_eig_D(Ks, Kt, sig2n):
     """
     nx = Ks.shape[0]
     nt = Kt.shape[0]
-    evals_t, evec_t = scipy.linalg.eigh(Kt)
-    evals_s, evec_s = scipy.linalg.eigh(Ks)
-    Dvec = np.repeat(evals_s, nt) * np.tile(evals_t, nx) + sig2n*np.ones(nx*nt)
+    if np.isscalar(sig2n):
+        sig2n_vec = sig2n*np.ones(nx*nt)
+    else:
+        sig2n_vec = np.repeat(sig2n, nt) #sig2n can be nx dimension
+    evals_t, evec_t = np.linalg.eigh(Kt)
+    evals_s, evec_s = np.linalg.eigh(Ks)
+    #import scipy.linalg
+    #evals_t, evec_t = scipy.linalg.eigh(Kt)
+    #evals_s, evec_s = scipy.linalg.eigh(Ks)
+    Dvec = np.repeat(evals_s, nt) * np.tile(evals_t, nx) + sig2n_vec
     return evec_s, evec_t, Dvec
