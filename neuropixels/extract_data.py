@@ -54,10 +54,10 @@ csd_loc = {'probeC': [2260., 2450., 2650., 2785.], 'probeD': [2215., 2410., 2590
 # %% Files for LFP and spiking data
 # Data available at https://doi.org/10.5281/zenodo.5150708
 lfp_nwb_file = '%s/data/mouse405751.lfp.nwb' % root_path
-nwb_lfp = h5.File(lfp_nwb_file)
+nwb_lfp = h5.File(lfp_nwb_file, 'r')
 
 spikes_nwb_file = '%s/data/mouse405751.spikes.nwb' % root_path
-nwb = h5.File(spikes_nwb_file)
+nwb = h5.File(spikes_nwb_file, 'r')
 
 # %% Loop over probes to get data
 for pi, probe in enumerate(probe_list): 
@@ -198,7 +198,6 @@ for pi, probe in enumerate(probe_list):
     plt.title(viz_roi_labels[probe])
     plt.subplots_adjust(right=0.7)
     plt.tight_layout()
-    plt.show()
 
     # Try to get epochs (extract 1 second centered at stim)
     lfp_data = nwb_lfp['acquisition']['timeseries'][probe]['data']
@@ -282,7 +281,6 @@ for pi, probe in enumerate(probe_list):
     plt.title('SC evokeds')
     f.set_size_inches(6, 15)
     plt.tight_layout()
-    plt.show()
 
     # Save data for visual regions
     viz_lfp = lfp_mat[lfp_ch_labels == roi_codes['V'], :, :] # (nx_viz, nt, ntrials)
