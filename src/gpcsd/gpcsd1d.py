@@ -128,7 +128,7 @@ class GPCSD1D:
         return np.squeeze(logdet + quad)
 
     def fit(self, n_restarts=10, method='L-BFGS-B', fix_R=False, verbose=False, 
-            options={'maxiter':1000, 'disp': True, 'gtol':1e-5, 'ftol':1e7 * np.finfo(float).eps}):
+            options={'maxiter':1000, 'disp': False, 'gtol':1e-5, 'ftol':1e7 * np.finfo(float).eps}):
         # Store nll values and params over restarts
         nll_values = []
         params = []
@@ -216,7 +216,7 @@ class GPCSD1D:
                 nll_values.append(nllcov)
                 params.append(tparams_fit)
                 term_msg.append(optrescov.message)
-            except ValueError as e:
+            except (ValueError, np.linalg.LinAlgError) as e:
                 print(e)
 
         nll_values = np.array(nll_values)
