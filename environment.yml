@@ -2,16 +2,17 @@ name: gpcsd
 channels:
     - defaults
 dependencies:
-    - h5py=3.2.1
-    - matplotlib=3.3.4
-    - networkx=2.6.2
-    - numpy=1.20.3
-    - pip=21.1.3
-    - python=3.9
-    - scikit-image=0.18.1
-    - scipy=1.6.2
+    - h5py>=3.2.1
+    - matplotlib>=3.3.4
+    - networkx>=2.6.2
+    - numpy>=1.20.3
+    - pip>=21.1.3
+    - python>=3.7
+    - scikit-image>=0.18.1
+    - scipy>=1.6.2
     - pip:
-      - gpcsd==1.0.0
-      #- "jax[cpu]"
+      - gpcsd>=1.0.0
       - autograd
-      - tqdm==4.62.0
+      - tqdm>=4.62.0
+      - git+https://github.com/Neuroinflab/kCSD-python@v2.0
+      - git+https://github.com/josue-orellana/pyTG
