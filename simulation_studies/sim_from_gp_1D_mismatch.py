@@ -92,7 +92,6 @@ plt.imshow(lfp2[:, :, 0], cmap='bwr', aspect='auto')
 plt.xlabel('Time')
 plt.title('Two-component LFP')
 plt.colorbar()
-plt.show()
 
 # %%
 plt.figure(figsize=(8, 5))
@@ -107,7 +106,6 @@ plt.imshow(lfp3[:, :, 0], cmap='bwr', aspect='auto')
 plt.xlabel('Time')
 plt.title('Three-component LFP')
 plt.colorbar()
-plt.show()
 
 # %% trad CSD on test data
 tcsd_pred2 = predictcsd_trad_1d(lfp2)[1:-1, :, :]
@@ -133,7 +131,6 @@ gpcsd_model3.fit()
 print(gpcsd_model3)
 gpcsd_model3.predict(xshort, t)
 
-
 # %% GPCSD fit with one instead of two components
 plt.figure(figsize=(12, 6))
 plt.subplot(141)
@@ -154,7 +151,6 @@ plt.imshow(normalize(lfp2[:, :, 0]), vmin=-1, vmax=1, cmap='bwr', aspect='auto')
 plt.title('LFP')
 plt.xlabel('Time (ms)')
 plt.tight_layout()
-plt.show()
 
 # %% GPCSD fit with 2 instead of 3 components
 plt.figure(figsize=(12, 6))
@@ -176,7 +172,6 @@ plt.imshow(normalize(lfp3[:, :, 0]), vmin=-1, vmax=1, cmap='bwr', aspect='auto')
 plt.title('LFP')
 plt.xlabel('Time (ms)')
 plt.tight_layout()
-plt.show()
 
 # %%
 gpcsd2_meansqerr = np.nanmean(np.square(normalize(gpcsd_model2.csd_pred[1:-1, :, :]) - normalize(csd2_interior_electrodes[1:-1, :, :])), axis=(0, 1)) 
