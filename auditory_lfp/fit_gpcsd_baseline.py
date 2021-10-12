@@ -124,7 +124,6 @@ plt.subplot(155)
 plt.imshow(normalize(lfp_baseline[:, :, trial]), aspect='auto', cmap='bwr', vmin=-1, vmax=1)
 plt.title('LFP')
 plt.tight_layout()
-plt.show()
 
 # %% Time series plots for medium depth electrode
 plt.figure(figsize=(12, 4))
@@ -138,7 +137,6 @@ plt.plot(t, gpcsd_model.csd_pred[11, :, ::100])
 plt.plot(t, np.mean(gpcsd_model.csd_pred[11, :, :], 1), 'k', linewidth=3)
 plt.title('GPCSD')
 plt.xlabel('Time (ms)')
-plt.show()
 
 # %% Prediction during trial - both CSD and LFP at the two timescales
 t_ind = np.logical_and(time >= 0, time < 500)
@@ -186,19 +184,19 @@ plt.imshow(lfp_trial[1:-1, :, trial_plot], aspect='auto', cmap='bwr',
 plt.title('LFP')
 plt.colorbar()
 plt.tight_layout()
-plt.show()
 
 # %% Compute spectral power of each component
+f_slow, spec0 = signal.periodogram(gpcsd_model.csd_pred_list[0], fs=fs, detrend=False, axis=1)
+f_fast, spec1 = signal.periodogram(gpcsd_model.csd_pred_list[1], fs=fs, detrend=False, axis=1)
+f_all, spec_csd = signal.periodogram(gpcsd_model.csd_pred, nfft=512, fs=fs, detrend=False, axis=1)
+f_slow, spec0_lfp = signal.periodogram(gpcsd_model.lfp_pred_list[0], fs=fs, detrend=False, axis=1)
+f_fast, spec1_lfp = signal.periodogram(gpcsd_model.lfp_pred_list[1], fs=fs, detrend=False, axis=1)
+f_all, spec_lfp = signal.periodogram(gpcsd_model.lfp_pred, fs=fs, detrend=False, axis=1)
+f_all, spec_y = signal.periodogram(lfp_trial, fs=fs, detrend=False, axis=1)
 
-f_slow, spec0 = signal.welch(gpcsd_model.csd_pred_list[0], fs=fs, nfft=512, detrend=False, nperseg=512, axis=1)
-f_fast, spec1 = signal.welch(gpcsd_model.csd_pred_list[1], fs=fs, nfft=512, detrend=False, nperseg=512, axis=1)
-f_all, spec_csd = signal.welch(gpcsd_model.csd_pred, nfft=512, fs=fs, detrend=False, nperseg=512, axis=1)
-f_slow, spec0_lfp = signal.welch(gpcsd_model.lfp_pred_list[0], fs=fs, nfft=512, detrend=False, nperseg=512, axis=1)
-f_fast, spec1_lfp = signal.welch(gpcsd_model.lfp_pred_list[1], fs=fs, nfft=512, detrend=False, nperseg=512, axis=1)
-f_all, spec_lfp = signal.welch(gpcsd_model.lfp_pred, fs=fs, nfft=512, detrend=False, nperseg=512, axis=1)
-f_all, spec_y = signal.welch(lfp_trial, fs=fs, nfft=512, detrend=False, nperseg=512, axis=1)
-
-maxfind = 20
+#maxfind = 20
+maxfind = np.argmin(np.abs(f_all-40))
+tenhzfind = np.argmin(np.abs(f_all-10))
 
 maxcsdpower = np.max(np.mean(spec_csd[1:,:],2))
 maxlfppower = np.max(np.mean(spec_y[1:,:],2))
@@ -243,9 +241,8 @@ ax[1].set_xlabel('Freq (Hz)')
 ax[1].set_title('LFP')
 ax[1].hlines(layerbounds, 0, f_all[maxfind], linestyles='dotted', color='grey', linewidth=2)
 # Relative 10Hz power
-f_ix = 5 # index of ~10Hz power
-ax[2].plot(spec1_csd_mean[f_ix, 1:-1] / np.max(spec1_csd_mean[f_ix, 1:-1]), xdepth[1:-1], 'r-o')
-ax[2].plot(spec1_lfp_mean[f_ix, 1:-1] / np.max(spec1_lfp_mean[f_ix, 1:-1]), xdepth[1:-1], 'b-o')
+ax[2].plot(spec1_csd_mean[tenhzfind, 1:-1] / np.max(spec1_csd_mean[tenhzfind, 1:-1]), xdepth[1:-1], 'r-o')
+ax[2].plot(spec1_lfp_mean[tenhzfind, 1:-1] / np.max(spec1_lfp_mean[tenhzfind, 1:-1]), xdepth[1:-1], 'b-o')
 ax[2].hlines(layerbounds, 0, 1.1, linestyles='dotted', color='grey', linewidth=2)
 ax[2].set_xlabel('Relative 10 Hz power')
 ax[2].set_ylim([0, 2300])
@@ -253,7 +250,6 @@ ax[2].invert_yaxis()
 ax[2].legend(['CSD', 'LFP'])
 ax[2].text(-0.5, -1.6, 'B', fontsize=20)
 plt.tight_layout()
-plt.show()
 
 plt.rcParams.update({'font.size': 16})
 plt.figure(figsize=(10, 4))
@@ -272,7 +268,6 @@ plt.xlabel('Time (ms)')
 plt.ylabel('LFP')
 plt.legend()
 plt.tight_layout()
-plt.show()
 
 # %% Timecourses from electrode 13
 plt.figure(figsize=(12, 16))
@@ -294,8 +289,6 @@ plt.title('CSD fast')
 plt.subplot(326, sharey=ax_lfp)
 plt.plot(gpcsd_model.t_pred, gpcsd_model.lfp_pred_list[1][13, :, ::100])
 plt.title('LFP fast')
-plt.show()
-
 
 # %% Filter to 10Hz to extract phase angles
 plt.figure()
@@ -337,7 +330,6 @@ plt.plot(gpcsd_model.t_pred.squeeze(), np.nanmean(plv_csd.reshape((24*24, -1)), 
 plt.subplot(122)
 plt.plot(gpcsd_model.t_pred.squeeze(), plv_lfp.reshape((24*24, -1)).T)
 plt.plot(gpcsd_model.t_pred.squeeze(), np.nanmean(plv_lfp.reshape((24*24, -1)), 0), 'k', linewidth=3)
-plt.show()
 
 # %% Save phases at time point index 350 for Matlab analysis
 scipy.io.savemat('%s/results/csd_lfp_filt_phases_%s.mat' % (root_path, probe_name), {'csd':csd_fast_phase[:, 350, :], 'lfp':lfp_fast_phase[:, 350, :]})
