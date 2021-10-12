@@ -133,7 +133,6 @@ for probe_name in ['medial', 'lateral']:
     plt.subplot(133)
     plt.imshow(normalize(evoked[probe_name]['kcsd']), cmap='bwr', vmin=-1, vmax=1, aspect='auto')
     plt.title('kCSD on evoked')
-    plt.show()
 
 with open('%s/results/gpcsd_lfp_trials.pkl' % root_path, 'wb') as f:
     pickle.dump(lfp_trials, f)
@@ -213,7 +212,6 @@ for probe_name in ['medial', 'lateral']:
     plt.imshow(evoked[probe_name]['lfp'], aspect='auto', cmap='bwr')
     plt.colorbar()
     plt.title('LFP evoked')
-    plt.show()
 
 # %% Figure 4 - show segments and evoked along with MUA
 
@@ -261,7 +259,6 @@ plt.plot(segment_boundaries[1], segment_boundaries[0], 'k.', markersize=1.0)
 plt.xlabel('Time (ms)')
 plt.title('Medial components')
 plt.tight_layout()
-plt.show()
 
 # %% Test time shifting and visualize
 probe_name = 'lateral'
@@ -296,8 +293,6 @@ plt.subplot(155)
 plt.imshow(lfp_trials[probe_name][:, :, 0] - np.sum(mu_lfp[probe_name], 2), aspect='auto', cmap='bwr')
 plt.title('lfp resid')
 plt.colorbar()
-plt.show()
-
 
 # %% Per-component shifts -- may take a while, depending on number of processors (optimization done in parallel for each trial)
 for probe_name in ['lateral', 'medial']:
@@ -363,7 +358,6 @@ for probe_name in ['lateral', 'medial']:
     plt.figure()
     plt.imshow(csd_segments[probe_name], aspect='auto', cmap=cmap)
     plt.plot(cmcoords[probe_name][:, 1], cmcoords[probe_name][:, 0], 'k.')
-    plt.show()
 
 # %% Compute KDE of estimated times for each component
 # Compute kde for times
@@ -475,10 +469,5 @@ ax.set_yticklabels(empty_string_labels)
 plt.legend(loc='lower right', handlelength=0.2)
 f.text(0.05, 0.9, 'A', fontsize=22)
 f.text(0.65, 0.9, 'B', fontsize=22)
-plt.show()
 
 
-
-# %%
-
-# %%
