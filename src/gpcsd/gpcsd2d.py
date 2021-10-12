@@ -151,7 +151,7 @@ class GPCSD2D:
         return np.squeeze(logdet + quad)
 
     def fit(self, n_restarts=10, method='L-BFGS-B', fix_R=False, verbose=False, profile=False,
-            options={'maxiter':500, 'disp': True, 'gtol':1e-5, 'ftol':1e7 * np.finfo(float).eps}):
+            options={'maxiter':500, 'disp': False, 'gtol':1e-5, 'ftol':1e7 * np.finfo(float).eps}):
         # Store nll values and params over restarts
         nll_values = []
         params = []
@@ -255,8 +255,7 @@ class GPCSD2D:
                 nll_values.append(nllcov)
                 params.append(tparams_fit)
                 term_msg.append(optrescov.message)
-            #except (ValueError, np.linalg.LinAlgError) as e:
-            except ValueError as e:
+            except (ValueError, np.linalg.LinAlgError) as e:
                 print(e)
                 print('\nrestarting optimization...')
 
