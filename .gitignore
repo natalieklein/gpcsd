@@ -1,6 +1,7 @@
 .vscode/*
 __pycache__/*
-*__pycache__/*
+src/gpcsd/__pycache__/
+src/gpcsd.egg-info/
 kCSD-python*
 data*
 results*
