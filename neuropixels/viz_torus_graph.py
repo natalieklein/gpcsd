@@ -153,5 +153,5 @@ for band in ['theta', 'beta']:
         plt.text(-0.39, 1.1, 'V1', fontsize=22)
         plt.text(0.3, 1.1, 'LM', fontsize=22)
 plt.tight_layout()
-plt.show()
+
 # %%
