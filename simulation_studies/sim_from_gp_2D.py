@@ -89,7 +89,6 @@ for ti in [0,1,2,3]:
     plt.ylabel('x2')
     plt.title('CSD (t = %0.2f)' % t[ti])
 plt.tight_layout()
-plt.show()
 
 # %% Predict CSD and LFP from generative model with correct parameters
 gpcsd_gen.update_lfp(lfp_sparse, t, x_grid)
@@ -116,7 +115,6 @@ for ti in [0,1,2,3]:
     plt.ylabel('x2')
     plt.title('Pred CSD (t = %0.2f)' % t[ti])
 plt.tight_layout()
-plt.show()
 
 # %% Set up GPCSD model
 R_prior = GPCSDInvGammaPrior()

@@ -6,7 +6,7 @@
 """
 # %%
 import matplotlib.pyplot as plt
-import autograd.numpy as np
+import numpy as np
 import time
 
 from gpcsd.gpcsd1d import GPCSD1D
@@ -73,7 +73,6 @@ plt.subplot(133)
 plt.imshow(lfp['white_noise'], aspect='auto', cmap='bwr')
 plt.title('LFP (noisy)')
 plt.xlabel('Time (ms)')
-plt.show()
 
 # %% traditional CSD estimation
 tcsd = {}
@@ -156,6 +155,5 @@ f.text(0.1, 0.85, 'A', fontsize=18)
 f.text(0.1, 0.45, 'B', fontsize=18)
 clb = f.colorbar(im, ax=f.axes)
 clb.ax.set_title('a.u.')
-plt.show()
 
 # %%
