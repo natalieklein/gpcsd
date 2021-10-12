@@ -18,7 +18,7 @@ from gpcsd.covariances import GPCSD2DSpatialCov, GPCSD2DSpatialCovSE, GPCSDTempo
 from gpcsd.priors import GPCSDInvGammaPrior, GPCSDHalfNormalPrior
 
 # %%
-reload_model = True # reload model if pickle file already exists?
+reload_model = False # reload model if pickle file already exists?
 plot_ol = False # plot outlier trials? (plotting is a little slow)
 
 # %% Load data
@@ -65,7 +65,6 @@ if plot_ol:
                 plt.plot(t, xi[1] + 3*lfp[probe][i, :, np.logical_not(ol)].T, 'k')
                 plt.plot(t, xi[1] + 3*lfp[probe][i, :, ol].T, 'r')
             plt.title('%s x1 = %0.2f microns' % (probe,j))
-            plt.show()
 
 for probe in ['probeC', 'probeD']:
     lfp[probe] = lfp[probe][:, :, np.logical_not(ol)]
@@ -110,6 +109,9 @@ for probe in ['probeC', 'probeD']:
         csd_pred0 = gpcsd_model.csd_pred_list[0]
         csd_pred1 = gpcsd_model.csd_pred_list[1]
 
+        csdSE[probe] = csd_pred0
+        csdMatern[probe] = csd_pred1
+
         # Saving
         params = gpcsd_model.extract_model_params()
         with open('%s/results/%s_model_csd_pred.pkl' % (root_path, probe), 'wb') as f:
@@ -119,10 +121,10 @@ for probe in ['probeC', 'probeD']:
 layer_labs = ['L6', 'L5', 'L4', 'L 2/3']
 for probe, probe_name in zip(['probeC', 'probeD'], ['V1', 'LM']):
 
-    f, res = signal.welch(csdMatern[probe], fs=2500., axis=1, noverlap=256, nfft=5000, nperseg=512)
+    f, res = signal.periodogram(csdMatern[probe], fs=2500., detrend=False, axis=1)
     pgramMatern = np.mean(res, 2)
 
-    f, res = signal.welch(csdSE[probe], fs=2500., axis=1, noverlap=256, nfft=5000, nperseg=512)
+    f, res = signal.periodogram(csdSE[probe], fs=2500., detrend=False, axis=1)
     pgramSE = np.mean(res, 2)
 
     colors = ['k', 'r', 'g', 'b']
@@ -133,7 +135,6 @@ for probe, probe_name in zip(['probeC', 'probeD'], ['V1', 'LM']):
     plt.xlabel('Frequency (Hz)')
     plt.title("%s CSD periodogram" % probe_name)
     plt.legend()
-    plt.show()
 
 # %% Filtering
 def butter_bandpass(lowcut, highcut, fs, order=5):
