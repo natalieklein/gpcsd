@@ -83,7 +83,6 @@ plt.title('LFP')
 plt.xlabel('Time')
 plt.colorbar()
 plt.tight_layout()
-plt.show()
 
 # %% trad CSD on test data
 tcsd_pred = predictcsd_trad_1d(lfp[:, :, 50:])[1:-1, :, :]
@@ -147,7 +146,6 @@ plt.imshow(lfp[:, :, 50], vmin=-1, vmax=1, cmap='bwr', aspect='auto')
 plt.title('LFP')
 plt.xlabel('Time')
 plt.tight_layout()
-plt.show()
 
 # %% Compute MSE -- mean squared error across space/time
 tcsd_meansqerr = np.nanmean(np.square(normalize(tcsd_pred[1:-1, :, :]) - normalize(csd_interior_electrodes[1:-1, :, 50:])), axis=(0, 1)) 
@@ -161,12 +159,10 @@ kcsd_rsq = 1 - np.sum(np.square(normalize(kcsd_values[2:-2, :, :]) - normalize(c
 plt.figure()
 plt.boxplot([tcsd_meansqerr, gpcsd_meansqerr, kcsd_meansqerr], labels=['tCSD', 'GPCSD', 'kCSD'])
 plt.ylabel('MSE')
-plt.show()
 
 plt.figure()
 plt.boxplot([tcsd_rsq, gpcsd_rsq, kcsd_rsq], labels=['tCSD', 'GPCSD', 'kCSD'])
 plt.ylabel('R^2')
-plt.show()
 
 print('tCSD average MSE across trials: %0.3g' % np.mean(tcsd_meansqerr))
 print('kCSD average MSE across trials: %0.3g' % np.mean(kcsd_meansqerr))
@@ -196,7 +192,6 @@ plt.plot(np.arange(2, 24)*100, np.mean(gpcsd_spacetime_rmse, 1), 'g.-', label="G
 plt.legend()
 plt.xlabel('Electrode position (depth, microns)')
 plt.ylabel('RMSE (averaged across trials/time)')
-plt.show()
 
 #%%
 from scipy.stats import ttest_rel
