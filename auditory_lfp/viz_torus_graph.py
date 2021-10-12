@@ -3,6 +3,7 @@ Visualize torus graph results (computed in Matlab by torus_graph_fit.m).
 Creates Figure 3 in the paper.
 
 """
+#%%
 import scipy.special
 import scipy.io
 import numpy as np
@@ -16,8 +17,8 @@ root_path = '/'.join(os.path.abspath(__file__).split('/')[:-1])
 # model fit on original data
 mat = scipy.io.loadmat('%s/results/twoprobe_tg.mat' % root_path)
 ntests = 48*(48-1)/2
-phi_lfp = mat['phi_hat_lfp']
-phi_csd = mat['phi_hat_csd']
+phi_lfp = mat['phi_hat_lfp'].squeeze()
+phi_csd = mat['phi_hat_csd'].squeeze()
 # bootstrapped partial PLV
 boot_mat = scipy.io.loadmat('%s/results/bootstrap_pplv_tg.mat' % root_path)
 
@@ -43,10 +44,10 @@ csd_pvals = np.nan * np.ones((48, 48))
 lfp_pvals = np.nan * np.ones((48, 48))
 for i in range(48):
     for j in range(i+1, 48):
-        csd_pvals[i, j] = mat['twoprobe_csd_pvals'][counter]
-        csd_pvals[j, i] = mat['twoprobe_csd_pvals'][counter]
-        lfp_pvals[i, j] = mat['twoprobe_lfp_pvals'][counter]
-        lfp_pvals[j, i] = mat['twoprobe_lfp_pvals'][counter]
+        csd_pvals[i, j] = mat['twoprobe_csd_pvals'][0, counter]
+        csd_pvals[j, i] = mat['twoprobe_csd_pvals'][0, counter]
+        lfp_pvals[i, j] = mat['twoprobe_lfp_pvals'][0, counter]
+        lfp_pvals[j, i] = mat['twoprobe_lfp_pvals'][0, counter]
         counter += 1
 
 csd_pplv = boot_mat['partial_plv_csd'] # (1128, 100)
@@ -94,7 +95,6 @@ plt.xlabel('Lateral            Medial', fontsize=16)
 plt.ylabel('Medial           Lateral', fontsize=16)
 cbar = f.colorbar(im, ax=f.axes, extend='min', ticks=[-5, -4, -3, -2, -1])
 cbar.ax.set_title('log10(p)', {'fontsize': 14}, pad=10)
-plt.show()
 
 #%% Visualize between-probe CSD graph
 csd_pvals[csd_pvals > alpha] = np.nan
@@ -125,7 +125,6 @@ plt.text(-0.55, -0.75, 'Deep', rotation=90, fontsize=16)
 plt.hlines(-2*(probe1boundaries/24 - 0.5), xmin=-0.6, xmax=0.0, linestyles='dashed', color='grey')
 plt.hlines(-2*(probe2boundaries/24 - 0.5), xmin=0.0, xmax=0.6, linestyles='dashed', color='grey')
 plt.text(-0.7, 1.25, 'B', fontsize=20)
-plt.show()
 
 # %% Bootstrap PPLV graph
 locs = [5, 13, 20]
@@ -210,5 +209,5 @@ cb.ax.set_title('95% Bootstrap CI L.B.', {'fontsize': 14})
 plt.text(-0.65, 1.1, 'Lateral', fontsize=16)
 plt.text(0.18, 1.1, 'Medial', fontsize=16)
 plt.text(-0.8, 1.2, 'C', fontsize=20)
-plt.show()
+
 # %%
