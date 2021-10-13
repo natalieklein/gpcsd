@@ -1,5 +1,6 @@
 % Torus graph model fitting and bootstrapping using Octave or Matlab
 % Loads phase files computed by fit_gpcsd2d.py
+% DEPRECATED; use fit_torus_graph.py for python version of Torus Graphs
 
 % Clone torus graphs from https://github.com/natalieklein/torus-graphs
 % For Octave (warning: slower than Matlab):
