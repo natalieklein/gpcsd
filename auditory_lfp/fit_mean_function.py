@@ -433,21 +433,23 @@ for i, probe_name in enumerate(['lateral', 'medial']):
                 xj_tmp = cmcoords[probe_name][cj, 1]
                 yi_tmp = cmcoords[probe_name][ci, 0]
                 yj_tmp = cmcoords[probe_name][cj, 0]
-                alpha_tmp = np.min([1.0, 5*np.abs(taucorr_sig[ci, cj])])
-                lw_tmp = np.min([3.0, 30*np.abs(taucorr_sig[ci, cj])])
-                plt.plot([xi_tmp, xj_tmp], [yi_tmp, yj_tmp], color='black', linewidth=lw_tmp, alpha=alpha_tmp)
+                if not np.isnan(taucorr_sig[ci, cj]):
+                    alpha_tmp = np.min([1.0, 5*np.abs(taucorr_sig[ci, cj])])
+                    lw_tmp = np.min([3.0, 30*np.abs(taucorr_sig[ci, cj])])
+                    plt.plot([xi_tmp, xj_tmp], [yi_tmp, yj_tmp], color='black', linewidth=lw_tmp, alpha=alpha_tmp)
 # between probe connections
 for ci in range(n_lat):
     for cj in range(n_med):
         if between_inds[ci, cj]:
             c1 = (cmcoords['lateral'][ci, 1], cmcoords['lateral'][ci, 0])
             c2 = (cmcoords['medial'][cj, 1], cmcoords['medial'][cj, 0])
-            alpha_tmp = np.min([1.0, 5*np.abs(taucorr_sig[ci, cj+n_lat])])
-            lw_tmp = np.min([3.0, 30*np.abs(taucorr_sig[ci, cj+n_lat])])
-            con = ConnectionPatch(xyA=c2, xyB=c1, coordsA="data", coordsB="data",
-                                  axesA=ax_list[1], axesB=ax_list[0], color="black", linewidth=lw_tmp, 
-                                  alpha=alpha_tmp, connectionstyle=ConnectionStyle.Arc3(rad=0.08))
-            ax_list[1].add_artist(con)
+            if not np.isnan(taucorr_sig[ci, cj+n_lat]):
+                alpha_tmp = np.min([1.0, 5*np.abs(taucorr_sig[ci, cj+n_lat])])
+                lw_tmp = np.min([3.0, 30*np.abs(taucorr_sig[ci, cj+n_lat])])
+                con = ConnectionPatch(xyA=c2, xyB=c1, coordsA="data", coordsB="data",
+                                    axesA=ax_list[1], axesB=ax_list[0], color="black", linewidth=lw_tmp, 
+                                    alpha=alpha_tmp, connectionstyle=ConnectionStyle.Arc3(rad=0.08))
+                ax_list[1].add_artist(con)
 ax = plt.subplot(133)
 for i, c in enumerate(cmcoords['lateral']):
     if i == 0:
