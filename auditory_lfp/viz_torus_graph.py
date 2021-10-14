@@ -51,7 +51,7 @@ for i in range(48):
         counter += 1
 
 csd_pplv = boot_mat['partial_plv_csd'] # (1128, 100)
-csd_pplv_mat = np.zeros((48, 48, 100))
+csd_pplv_mat = np.zeros((48, 48, csd_pplv.shape[1]))
 counter = 0
 for i in range(48):
     for j in range(i+1, 48):
