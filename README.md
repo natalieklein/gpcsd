@@ -11,7 +11,8 @@ Full source code available at https://github.com/natalieklein/gpcsd.
 ## Installation
 Install using `pip install gpcsd`. 
 To get the scripts to reproduce the paper results, get the source code from github: https://github.com/natalieklein/gpcsd.
-Dependencies should be automatically installed by `pip`, or see the `environment.yml` file.
+Dependencies should be automatically installed by `pip`, but also see the Anaconda `environment.yml` file.
+It will install two github-based dependencies with `pip` that are not able to be included in `setup.py`.
 
 ## Main source code
 Directory `src/gpcsd` contains the main source code. There are classes `gpcsd1d.py` and `gpcsd2d.py` for the GPCSD models, in addition to some support functions in other files.

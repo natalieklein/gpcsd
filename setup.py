@@ -36,8 +36,6 @@ setup(
                       'scipy>=1.6.2',
                       'tqdm',
                       'joblib',
-                      'kcsd @ git+https://github.com/Neuroinflab/kCSD-python@v2.0',
-                      'pyTG @ git+https://github.com/josue-orellana/pyTG',
                      ],  
     project_urls={  
          'Paper': 'https://arxiv.org/abs/2104.10070',
