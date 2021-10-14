@@ -21,12 +21,12 @@ Simulation studies are found in `simulation_studies` and reproduce all simulatio
 
 ## Auditory LFP analysis
 Here we apply GPCSD1D to two-probe auditory cortex LFPs measured in a macaque monkey. The scripts reproduce all results shown in the paper. See `auditory_lfp/README.md` for more information on the scripts.
-The auditory LFP data can be downloaded from https://doi.org/10.5281/zenodo.5137888. 
+The auditory LFP data can be downloaded from https://doi.org/10.5281/zenodo.5137888, or using script `download_data.sh`.
 The code assumes that it will be downloaded into `auditory_lfp/data/`. 
 
 ## Neuropixels analysis
 We apply GPCSD2D to LFP recordings from Neuropixels probes in a mouse. This reproduces the figures shown in the paper. See `neuropixels/README.md` for more detail.
-The Neuropixels data can be downloaded from https://doi.org/10.5281/zenodo.5150708.
+The Neuropixels data can be downloaded from https://doi.org/10.5281/zenodo.5150708, or using script `download_data.sh`.
 The code assumes that it will be downloaded into `neuropixels/data/`.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5154196.svg)](https://doi.org/10.5281/zenodo.5154196)
