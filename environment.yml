@@ -3,7 +3,7 @@ channels:
     - defaults
 dependencies:
     - h5py>=3.2.1
-    - matplotlib>=3.3.4
+    - matplotlib
     - networkx>=2.6.2
     - numpy>=1.20.3
     - pip>=21.1.3
@@ -13,6 +13,6 @@ dependencies:
     - pip:
       - gpcsd>=1.0.0
       - autograd
-      - tqdm>=4.62.0
+      - tqdm
       - git+https://github.com/Neuroinflab/kCSD-python@v2.0
       - git+https://github.com/josue-orellana/pyTG
