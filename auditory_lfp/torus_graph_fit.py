@@ -40,7 +40,7 @@ print('Twoprobe LFP TG has %d edges bonf 0.001' % np.sum(lfp_pvals < 0.001/(24*2
 
 # %% Bootstrapping 
 nboot = 100 # warning: can take a long time; use small nboot for testing, 100 used in paper
-ntrials = phases['lateral'].shape[1]
+ntrials = phases['lateral']['csd'].shape[1]
 partial_plv_csd = np.zeros((1128, nboot));
 for bi in tqdm(range(nboot), desc='Bootstrap iteration'):
      binds = np.random.choice(ntrials, size=ntrials, replace=True)
