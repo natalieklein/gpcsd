@@ -59,8 +59,8 @@ for bi in tqdm(range(nboot), desc='Bootstrap iteration'):
             partial_plv[band][t].append(nodepairs['condCoupling'])
    
 # Save results TODO
-pplv_theta = np.stack([np.array(partial_plv['theta'][0]), np.array(partial_plv['theta'][70])])
-pplv_beta = np.stack([np.array(partial_plv['beta'][0]), np.array(partial_plv['beta'][70])])
+pplv_theta = np.stack([np.array(partial_plv['theta'][0]).T, np.array(partial_plv['theta'][70]).T], axis=2)
+pplv_beta = np.stack([np.array(partial_plv['beta'][0]).T, np.array(partial_plv['beta'][70]).T], axis=2)
 
 res = {'pplv_theta': pplv_theta, 'pplv_beta': pplv_beta}
 savemat('results/bootstrap_neuropixels.mat', res)
