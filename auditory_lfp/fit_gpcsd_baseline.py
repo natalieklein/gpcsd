@@ -25,7 +25,7 @@ np.random.seed(0)
 n_restarts = 10 # how many random initializations for GP fitting
 ntrials_fit = None # how many trials to use in fitting; None uses all
 probe_name = "lateral" # choose "medial" or "lateral"
-reload_model = True
+reload_model = False # reload saved GPCSD model?
 
 # Probe limits (in 1000 micron units)
 a = 0
@@ -95,9 +95,9 @@ if reload_model and os.path.isfile('%s/results/gpcsd_model_%s.pkl' % (root_path,
 else:
     gpcsd_model.fit(n_restarts=n_restarts, verbose=True)
 
-params = gpcsd_model.extract_model_params()
-with open('%s/results/gpcsd_model_%s.pkl' % (root_path, probe_name), 'wb') as f:
-    pickle.dump(params, f)
+    params = gpcsd_model.extract_model_params()
+    with open('%s/results/gpcsd_model_%s.pkl' % (root_path, probe_name), 'wb') as f:
+        pickle.dump(params, f)
 
 # %% Predict during baseline period
 gpcsd_model.update_lfp(lfp_baseline, t)
@@ -194,7 +194,6 @@ f_fast, spec1_lfp = signal.periodogram(gpcsd_model.lfp_pred_list[1], fs=fs, detr
 f_all, spec_lfp = signal.periodogram(gpcsd_model.lfp_pred, fs=fs, detrend=False, axis=1)
 f_all, spec_y = signal.periodogram(lfp_trial, fs=fs, detrend=False, axis=1)
 
-#maxfind = 20
 maxfind = np.argmin(np.abs(f_all-40))
 tenhzfind = np.argmin(np.abs(f_all-10))
 
